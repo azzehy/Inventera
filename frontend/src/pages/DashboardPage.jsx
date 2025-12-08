@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer
-} from "recharts";
+} from "recharts"; 
 
 const DashboardPage = () => {
   const [message, setMessage] = useState("");
