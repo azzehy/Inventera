@@ -20,4 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     @Query("SELECT p FROM Product p WHERE p.enterprise.id = :enterpriseId AND p.name LIKE %:name%") // on peut utiliser ici LIKE CONCAT('%', :name, '%')") ... je pense que c est recommande par les derniers standards JPA : a verifier
     List<Product> searchByName(Long enterpriseId, String name);
+
+    boolean existsBySkuAndEnterpriseId(String sku, Long enterpriseId);
+    
+    List<Product> findByNameContainingOrDescriptionContainingAndEnterpriseId(String name, String description, Long enterpriseId);
 }

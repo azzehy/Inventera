@@ -10,47 +10,59 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/enterprises")
+@RequestMapping("/api/enterprises")
 @RequiredArgsConstructor
 public class EnterpriseController {
 
     private final EnterpriseService enterpriseService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Response> createEnterprise(@Valid @RequestBody EnterpriseDTO enterpriseDTO) {
         return ResponseEntity.ok(enterpriseService.createEnterprise(enterpriseDTO));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<Response> updateEnterprise(
             @PathVariable Long id,
             @Valid @RequestBody EnterpriseDTO enterpriseDTO) {
         return ResponseEntity.ok(enterpriseService.updateEnterprise(id, enterpriseDTO));
     }
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Response> getAllEnterprises() {
         return ResponseEntity.ok(enterpriseService.getAllEnterprises());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getEnterpriseById(@PathVariable Long id) {
         return ResponseEntity.ok(enterpriseService.getEnterpriseById(id));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Response> deleteEnterprise(@PathVariable Long id) {
         return ResponseEntity.ok(enterpriseService.deleteEnterprise(id));
     }
 
     @GetMapping("/{id}/stats")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getEnterpriseStats(@PathVariable Long id) {
         return ResponseEntity.ok(enterpriseService.getEnterpriseStats(id));
+    }
+
+    @GetMapping("/my-enterprise")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Response> getMyEnterprise() {
+        return ResponseEntity.ok(enterpriseService.getMyEnterprise());
+    }
+
+    @GetMapping("/my-enterprise/stats")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Response> getMyEnterpriseStats() {
+        return ResponseEntity.ok(enterpriseService.getMyEnterpriseStats());
     }
 }

@@ -13,4 +13,8 @@ public interface BusinessPartnerService {
     Response getBusinessPartnersByType(BusinessPartnerType type);
     Response getBusinessPartnersByEnterprise(Long enterpriseId);
     Response getBusinessPartnersByEnterpriseAndType(Long enterpriseId, BusinessPartnerType type);
+    Response getMyEnterprisePartners();
+    Response getMyEnterprisePartnersByType(BusinessPartnerType type);
+    Response getMyEnterpriseSuppliers();
+    Response getMyEnterpriseClients();
 }

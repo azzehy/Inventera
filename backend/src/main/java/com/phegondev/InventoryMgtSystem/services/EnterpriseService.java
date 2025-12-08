@@ -10,4 +10,6 @@ public interface EnterpriseService {
     Response getEnterpriseById(Long id);
     Response deleteEnterprise(Long id);
     Response getEnterpriseStats(Long id);
+    Response getMyEnterprise();
+    Response getMyEnterpriseStats();
 }

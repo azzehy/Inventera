@@ -11,4 +11,6 @@ public interface BusinessPartnerRepository extends JpaRepository<BusinessPartner
     List<BusinessPartner> findByEnterpriseId(Long enterpriseId);
     List<BusinessPartner> findByEnterpriseIdAndType(Long enterpriseId, BusinessPartnerType type);
     List<BusinessPartner> findByType(BusinessPartnerType type);
+    boolean existsByEmailAndEnterpriseId(String email, Long enterpriseId);
+    boolean existsByNumeroAndEnterpriseId(String numero, Long enterpriseId);
 }

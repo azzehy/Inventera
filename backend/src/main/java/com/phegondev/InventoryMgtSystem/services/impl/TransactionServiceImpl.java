@@ -3,6 +3,8 @@ package com.phegondev.InventoryMgtSystem.services.impl;
 import com.phegondev.InventoryMgtSystem.dtos.*;
 import com.phegondev.InventoryMgtSystem.enums.TransactionStatus;
 import com.phegondev.InventoryMgtSystem.enums.TransactionType;
+import com.phegondev.InventoryMgtSystem.enums.UserRole;
+import com.phegondev.InventoryMgtSystem.exceptions.InvalidCredentialsException;
 import com.phegondev.InventoryMgtSystem.exceptions.NotFoundException;
 import com.phegondev.InventoryMgtSystem.models.*;
 import com.phegondev.InventoryMgtSystem.repositories.*;
@@ -39,24 +41,35 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public Response createTransaction(TransactionRequest request) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
         Enterprise enterprise = enterpriseRepository.findById(request.getEnterpriseId())
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(request.getEnterpriseId())) {
+                throw new InvalidCredentialsException(
+                    "You can only create transactions for your own enterprise");
+            }
+        }
 
         BusinessPartner partner = null;
         if (request.getPartnerId() != null) {
             partner = businessPartnerRepository.findById(request.getPartnerId())
                     .orElseThrow(() -> new NotFoundException("Business Partner Not Found"));
-        }
 
-        User user = userService.getCurrentLoggedInUser();
+                if (!partner.getEnterprise().getId().equals(request.getEnterpriseId())) {
+                    throw new InvalidCredentialsException(
+                        "The business partner does not belong to the specified enterprise");
+                }
+        }
 
         Transaction transaction = Transaction.builder()
                 .transactionType(request.getTransactionType())
                 .status(TransactionStatus.PENDING)
                 .enterprise(enterprise)
                 .partner(partner)
-                .user(user)
+                .user(currentUser)
                 .description(request.getDescription())
                 .note(request.getNote())
                 .qtyProducts(0)
@@ -70,6 +83,11 @@ public class TransactionServiceImpl implements TransactionService {
         for (TransactionLineRequest lineRequest : request.getItems()) {
             Product product = productRepository.findById(lineRequest.getProductId())
                     .orElseThrow(() -> new NotFoundException("Product Not Found with ID: " + lineRequest.getProductId()));
+
+            if (!product.getEnterprise().getId().equals(enterprise.getId())) {
+                throw new InvalidCredentialsException(
+                    "Product '" + product.getName() + "' does not belong to this enterprise");
+            }
 
             BigDecimal unitPrice = lineRequest.getUnitPrice() != null 
                 ? lineRequest.getUnitPrice() 
@@ -130,6 +148,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Response getAllTransactions(int page, int size, String filter) {
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only SUPER_ADMIN can view all transactions");
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
@@ -151,10 +174,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Response getAllTransactionById(Long id) {
-
+        User currentUser = userService.getCurrentLoggedInUser();
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Transaction Not Found"));
 
+        validateTransactionAccess(currentUser, transaction);
         TransactionDTO transactionDTO = mapToDTOWithDetails(transaction);
 
         return Response.builder()
@@ -166,7 +190,19 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Response getAllTransactionByMonthAndYear(int month, int year) {
-        List<Transaction> transactions = transactionRepository.findAll(TransactionFilter.byMonthAndYear(month, year));
+        User currentUser = userService.getCurrentLoggedInUser();
+        Specification<Transaction> spec = TransactionFilter.byMonthAndYear(month, year);
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            Specification<Transaction> enterpriseSpec = 
+                (root, query, cb) -> cb.equal(
+                    root.get("enterprise").get("id"), 
+                    currentUser.getEnterprise().getId()
+                );
+            spec = spec.and(enterpriseSpec);
+        }
+
+        List<Transaction> transactions = transactionRepository.findAll(spec);
 
         List<TransactionDTO> transactionDTOS = transactions.stream()
                 .map(this::mapToDTO)
@@ -182,9 +218,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public Response updateTransactionStatus(Long transactionId, TransactionStatus status) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
         Transaction existingTransaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new NotFoundException("Transaction Not Found"));
+
+        validateTransactionAccess(currentUser, existingTransaction);
 
         existingTransaction.setStatus(status);
         existingTransaction.setUpdatedAt(LocalDateTime.now());
@@ -199,8 +238,17 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Response getTransactionsByEnterprise(Long enterpriseId, int page, int size) {
+        User currentUser = userService.getCurrentLoggedInUser();
+
         enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+        
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(enterpriseId)) {
+                throw new InvalidCredentialsException(
+                    "You can only view transactions from your own enterprise");
+            }
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Transaction> transactionPage = transactionRepository.findByEnterpriseId(enterpriseId, pageable);
@@ -220,8 +268,17 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Response getTransactionsByPartner(Long partnerId, int page, int size) {
-        businessPartnerRepository.findById(partnerId)
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        BusinessPartner partner = businessPartnerRepository.findById(partnerId)
                 .orElseThrow(() -> new NotFoundException("Business Partner Not Found"));
+        
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!partner.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
+                throw new InvalidCredentialsException(
+                    "This partner does not belong to your enterprise");
+            }
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Transaction> transactionPage = transactionRepository.findByPartnerId(partnerId, pageable);
@@ -239,6 +296,23 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
     }
 
+    @Override
+    public Response getMyEnterpriseTransactions(int page, int size) {
+        User currentUser = userService.getCurrentLoggedInUser();
+        return getTransactionsByEnterprise(currentUser.getEnterprise().getId(), page, size);
+    }
+
+    private void validateTransactionAccess(User currentUser, Transaction transaction) {
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            return;
+        }
+
+        if (!transaction.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
+            throw new InvalidCredentialsException(
+                "You can only access transactions from your own enterprise");
+        }
+    }
+
     private void updateProductStock(Product product, Integer quantity, TransactionType type) {
         switch (type) {
             case PURCHASE:
@@ -247,7 +321,7 @@ public class TransactionServiceImpl implements TransactionService {
             case SALE:
             case RETURN_TO_SUPPLIER:
                 if (product.getQuantity() < quantity) {
-                    throw new IllegalArgumentException("Insufficient stock for product: " + product.getName());
+                    throw new IllegalArgumentException("Insufficient stock for product: " + product.getName() + ". Available: " + product.getQuantity() + ", Required: " + quantity);
                 }
                 product.setQuantity(product.getQuantity() - quantity);
                 break;

@@ -23,4 +23,8 @@ public interface ProductService {
     Response getProductsByCategory(Long categoryId);
 
     Response getLowStockProducts(Long enterpriseId);
+
+    Response getMyEnterpriseProducts();
+    
+    Response getMyEnterpriseLowStockProducts();
 }

@@ -16,4 +16,6 @@ public interface CategoryService {
     Response deleteCategory(Long id);
 
     Response getCategoriesByEnterprise(Long enterpriseId);
+
+    Response getMyEnterpriseCategories();
 }

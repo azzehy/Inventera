@@ -2,14 +2,20 @@ package com.phegondev.InventoryMgtSystem.services.impl;
 
 import com.phegondev.InventoryMgtSystem.dtos.EnterpriseDTO;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
+import com.phegondev.InventoryMgtSystem.enums.UserRole;
+import com.phegondev.InventoryMgtSystem.exceptions.InvalidCredentialsException;
 import com.phegondev.InventoryMgtSystem.exceptions.NotFoundException;
 import com.phegondev.InventoryMgtSystem.models.Enterprise;
 import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.services.EnterpriseService;
+import com.phegondev.InventoryMgtSystem.services.UserService;
+import com.phegondev.InventoryMgtSystem.models.User;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,10 +26,27 @@ import java.util.stream.Collectors;
 public class EnterpriseServiceImpl implements EnterpriseService {
 
     private final EnterpriseRepository enterpriseRepository;
+    private final UserService userService;
 
     @Override
+    @Transactional
     public Response createEnterprise(EnterpriseDTO enterpriseDTO) {
-        
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only SUPER_ADMIN can create enterprises");
+        }
+
+        if (enterpriseRepository.existsByName(enterpriseDTO.getName())) {
+            throw new IllegalArgumentException(
+                "An enterprise with the name '" + enterpriseDTO.getName() + "' already exists");
+        }
+
+        if (enterpriseDTO.getEmail() != null && enterpriseRepository.existsByEmail(enterpriseDTO.getEmail())) {
+            throw new IllegalArgumentException(
+                "An enterprise with the email '" + enterpriseDTO.getEmail() + "' already exists");
+        }
+
         Enterprise enterprise = Enterprise.builder()
                 .name(enterpriseDTO.getName())
                 .address(enterpriseDTO.getAddress())
@@ -32,6 +55,9 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         enterpriseRepository.save(enterprise);
 
+        log.info("Enterprise '{}' created successfully by SUPER_ADMIN: {}", 
+                 enterprise.getName(), currentUser.getEmail());
+
         return Response.builder()
                 .status(200)
                 .message("Enterprise created successfully")
@@ -39,12 +65,21 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
+    @Transactional
     public Response updateEnterprise(Long id, EnterpriseDTO enterpriseDTO) {
-        
+        User currentUser = userService.getCurrentLoggedInUser();
+
         Enterprise existingEnterprise = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
 
-        if (enterpriseDTO.getName() != null && !enterpriseDTO.getName().isBlank()) {
+        validateEnterpriseAccess(currentUser, existingEnterprise);
+
+        if (enterpriseDTO.getName() != null && !enterpriseDTO.getName().isBlank()
+            && !enterpriseDTO.getName().equals(existingEnterprise.getName())) {
+            if (enterpriseRepository.existsByName(enterpriseDTO.getName())) {
+                throw new IllegalArgumentException(
+                    "An enterprise with the name '" + enterpriseDTO.getName() + "' already exists");
+            }
             existingEnterprise.setName(enterpriseDTO.getName());
         }
 
@@ -52,7 +87,12 @@ public class EnterpriseServiceImpl implements EnterpriseService {
             existingEnterprise.setAddress(enterpriseDTO.getAddress());
         }
 
-        if (enterpriseDTO.getEmail() != null && !enterpriseDTO.getEmail().isBlank()) {
+        if (enterpriseDTO.getEmail() != null && !enterpriseDTO.getEmail().isBlank()
+            && !enterpriseDTO.getEmail().equals(existingEnterprise.getEmail())) {
+            if (enterpriseRepository.existsByEmail(enterpriseDTO.getEmail())) {
+                throw new IllegalArgumentException(
+                    "An enterprise with the email '" + enterpriseDTO.getEmail() + "' already exists");
+            }
             existingEnterprise.setEmail(enterpriseDTO.getEmail());
         }
 
@@ -66,7 +106,12 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     public Response getAllEnterprises() {
+        User currentUser = userService.getCurrentLoggedInUser();
         
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only SUPER_ADMIN can view all enterprises");
+        }
+
         List<Enterprise> enterprises = enterpriseRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
         List<EnterpriseDTO> enterpriseDTOS = enterprises.stream()
@@ -82,9 +127,12 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     public Response getEnterpriseById(Long id) {
+        User currentUser = userService.getCurrentLoggedInUser();
         
         Enterprise enterprise = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        validateEnterpriseAccess(currentUser, enterprise);
 
         EnterpriseDTO enterpriseDTO = mapToDTO(enterprise);
 
@@ -96,10 +144,35 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
+    @Transactional
     public Response deleteEnterprise(Long id) {
+        User currentUser = userService.getCurrentLoggedInUser();
         
-        enterpriseRepository.findById(id)
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only SUPER_ADMIN can delete enterprises");
+        }
+
+        Enterprise enterprise = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        if (enterprise.getUsers() != null && !enterprise.getUsers().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Cannot delete enterprise '" + enterprise.getName() + 
+                "' because it has " + enterprise.getUsers().size() + " active user(s). " +
+                "Please remove or transfer all users first.");
+        }
+        if (enterprise.getProducts() != null && !enterprise.getProducts().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Cannot delete enterprise '" + enterprise.getName() + 
+                "' because it has " + enterprise.getProducts().size() + " product(s). " +
+                "Please remove all products first.");
+        }
+        if (enterprise.getTransactions() != null && !enterprise.getTransactions().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Cannot delete enterprise '" + enterprise.getName() + 
+                "' because it has " + enterprise.getTransactions().size() + " transaction(s). " +
+                "Cannot delete enterprise with transaction history.");
+        }
 
         enterpriseRepository.deleteById(id);
 
@@ -111,9 +184,12 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     public Response getEnterpriseStats(Long id) {
-        
+        User currentUser = userService.getCurrentLoggedInUser();
+
         Enterprise enterprise = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        validateEnterpriseAccess(currentUser, enterprise);
 
         EnterpriseDTO enterpriseDTO = mapToDTOWithStats(enterprise);
 
@@ -122,6 +198,43 @@ public class EnterpriseServiceImpl implements EnterpriseService {
                 .message("success")
                 .enterprise(enterpriseDTO)
                 .build();
+    }
+
+    @Override
+    public Response getMyEnterprise() {
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException(
+                "SUPER_ADMIN is not associated with a specific enterprise. " +
+                "Use /api/enterprises/all to view all enterprises.");
+        }
+
+        return getEnterpriseById(currentUser.getEnterprise().getId());
+    }
+
+    @Override
+    public Response getMyEnterpriseStats() {
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException(
+                "SUPER_ADMIN is not associated with a specific enterprise. " +
+                "Use /api/enterprises/{id}/stats to view specific enterprise stats.");
+        }
+
+        return getEnterpriseStats(currentUser.getEnterprise().getId());
+    }
+
+    private void validateEnterpriseAccess(User currentUser, Enterprise enterprise) {
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            return;
+        }
+
+        if (!currentUser.getEnterprise().getId().equals(enterprise.getId())) {
+            throw new InvalidCredentialsException(
+                "You can only access information about your own enterprise");
+        }
     }
 
     private EnterpriseDTO mapToDTO(Enterprise enterprise) {

@@ -11,38 +11,38 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/transactions")
+@RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
 
     private final TransactionService transactionService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> createTransaction(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.createTransaction(request));
     }
 
     @PostMapping("/purchase")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> purchase(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.purchase(request));
     }
 
     @PostMapping("/sell")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'CASHIER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> sell(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.sell(request));
     }
 
     @PostMapping("/return")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> returnToSupplier(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.returnToSupplier(request));
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Response> getAllTransactions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -51,13 +51,13 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getAllTransactionById(@PathVariable Long id) {
         return ResponseEntity.ok(transactionService.getAllTransactionById(id));
     }
 
     @GetMapping("/month/{month}/year/{year}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getAllTransactionsByMonthAndYear(
             @PathVariable int month,
             @PathVariable int year) {
@@ -65,7 +65,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> updateTransactionStatus(
             @PathVariable Long id,
             @RequestParam TransactionStatus status) {
@@ -73,7 +73,7 @@ public class TransactionController {
     }
 
     @GetMapping("/enterprise/{enterpriseId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getTransactionsByEnterprise(
             @PathVariable Long enterpriseId,
             @RequestParam(defaultValue = "0") int page,
@@ -82,11 +82,19 @@ public class TransactionController {
     }
 
     @GetMapping("/partner/{partnerId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getTransactionsByPartner(
             @PathVariable Long partnerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(transactionService.getTransactionsByPartner(partnerId, page, size));
+    }
+
+    @GetMapping("/my-transactions")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<Response> getMyTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(transactionService.getMyEnterpriseTransactions(page, size));
     }
 }

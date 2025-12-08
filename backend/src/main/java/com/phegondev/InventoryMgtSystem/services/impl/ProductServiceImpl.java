@@ -2,14 +2,18 @@ package com.phegondev.InventoryMgtSystem.services.impl;
 
 import com.phegondev.InventoryMgtSystem.dtos.ProductDTO;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
+import com.phegondev.InventoryMgtSystem.enums.UserRole;
+import com.phegondev.InventoryMgtSystem.exceptions.InvalidCredentialsException;
 import com.phegondev.InventoryMgtSystem.exceptions.NotFoundException;
 import com.phegondev.InventoryMgtSystem.models.Category;
 import com.phegondev.InventoryMgtSystem.models.Enterprise;
 import com.phegondev.InventoryMgtSystem.models.Product;
+import com.phegondev.InventoryMgtSystem.models.User;
 import com.phegondev.InventoryMgtSystem.repositories.CategoryRepository;
 import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.repositories.ProductRepository;
 import com.phegondev.InventoryMgtSystem.services.ProductService;
+import com.phegondev.InventoryMgtSystem.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -30,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final EnterpriseRepository enterpriseRepository;
+    private final UserService userService;
 
     private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/product-images/";
 
@@ -39,12 +44,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
         Category category = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category Not Found"));
 
         Enterprise enterprise = enterpriseRepository.findById(productDTO.getEnterpriseId())
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(productDTO.getEnterpriseId())) {
+                throw new InvalidCredentialsException(
+                    "You can only create products for your own enterprise");
+            }
+        }
+       
+        if (!category.getEnterprise().getId().equals(enterprise.getId())) {
+            throw new InvalidCredentialsException(
+                "Category does not belong to this enterprise");
+        }
+
+        if (productRepository.existsBySkuAndEnterpriseId(productDTO.getSku(), enterprise.getId())) {
+            throw new IllegalArgumentException(
+                "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
+        }
 
         Product productToSave = Product.builder()
                 .name(productDTO.getName())
@@ -79,10 +102,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Response updateProduct(ProductDTO productDTO, MultipartFile imageFile) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
         // check if product exisit
         Product existingProduct = productRepository.findById(productDTO.getId())
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
+
+        validateProductAccess(currentUser, existingProduct);
 
         if (imageFile != null && !imageFile.isEmpty()) {
             // String imagePath = saveImage(imageFile);
@@ -95,10 +121,20 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getCategoryId() != null && productDTO.getCategoryId() > 0) {
             Category category = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category Not Found"));
+
+            if (!category.getEnterprise().getId().equals(existingProduct.getEnterprise().getId())) {
+                throw new InvalidCredentialsException(
+                    "Category does not belong to this product's enterprise");
+            }
             existingProduct.setCategory(category);
         }
 
         if (productDTO.getEnterpriseId() != null && productDTO.getEnterpriseId() > 0) {
+            if (!productDTO.getEnterpriseId().equals(existingProduct.getEnterprise().getId())) {
+                if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+                    throw new InvalidCredentialsException(
+                        "Only SUPER_ADMIN can change a product's enterprise");
+                }
             Enterprise enterprise = enterpriseRepository.findById(productDTO.getEnterpriseId())
                     .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
             existingProduct.setEnterprise(enterprise);
@@ -108,7 +144,13 @@ public class ProductServiceImpl implements ProductService {
             existingProduct.setName(productDTO.getName());
         }
 
-        if (productDTO.getSku() != null && !productDTO.getSku().isBlank()) {
+        if (productDTO.getSku() != null && !productDTO.getSku().isBlank() 
+            && !productDTO.getSku().equals(existingProduct.getSku())) {
+            if (productRepository.existsBySkuAndEnterpriseId(
+                    productDTO.getSku(), existingProduct.getEnterprise().getId())) {
+                throw new IllegalArgumentException(
+                    "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
+            }
             existingProduct.setSku(productDTO.getSku());
         }
 
@@ -133,15 +175,22 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productRepository.save(existingProduct);
+        }
 
         return Response.builder()
                 .status(200)
                 .message("Product Updated successfully")
                 .build();
+        
     }
 
     @Override
     public Response getAllProducts() {
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only SUPER_ADMIN can view all products");
+        }
 
         List<Product> productList = productRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
@@ -158,9 +207,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Response getProductById(Long id) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
+
+        validateProductAccess(currentUser, product);
 
         ProductDTO productDTO = mapToDTO(product);
 
@@ -173,9 +225,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Response deleteProduct(Long id) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
-        productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
+
+        validateProductAccess(currentUser, product);
 
         productRepository.deleteById(id);
 
@@ -187,8 +242,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Response searchProduct(String input) {
+        User currentUser = userService.getCurrentLoggedInUser();
 
-        List<Product> products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
+        List<Product> products ;
+
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
+        } else {
+            products = productRepository.findByNameContainingOrDescriptionContainingAndEnterpriseId(
+                input, input, currentUser.getEnterprise().getId());
+        }
 
         if (products.isEmpty()) {
             throw new NotFoundException("Product Not Found");
@@ -205,9 +268,19 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    @Override
     public Response getProductsByEnterprise(Long enterpriseId) {
-        enterpriseRepository.findById(enterpriseId)
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(enterpriseId)) {
+                throw new InvalidCredentialsException(
+                    "You can only view products from your own enterprise");
+            }
+        }
 
         List<Product> products = productRepository.findByEnterpriseId(enterpriseId);
 
@@ -223,8 +296,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public Response getProductsByCategory(Long categoryId) {
-        categoryRepository.findById(categoryId)
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category Not Found"));
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!category.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
+                throw new InvalidCredentialsException(
+                    "This category does not belong to your enterprise");
+            }
+        }
 
         List<Product> products = productRepository.findByCategoryId(categoryId);
 
@@ -239,9 +321,19 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    @Override
     public Response getLowStockProducts(Long enterpriseId) {
+        User currentUser = userService.getCurrentLoggedInUser();
+
         enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+
+        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(enterpriseId)) {
+                throw new InvalidCredentialsException(
+                    "You can only view low stock products from your own enterprise");
+            }
+        }
 
         List<Product> products = productRepository.findLowStockProducts(enterpriseId);
 
@@ -254,6 +346,18 @@ public class ProductServiceImpl implements ProductService {
                 .message("success")
                 .products(productDTOList)
                 .build();
+    }
+
+    @Override
+    public Response getMyEnterpriseProducts() {
+        User currentUser = userService.getCurrentLoggedInUser();
+        return getProductsByEnterprise(currentUser.getEnterprise().getId());
+    }
+
+    @Override
+    public Response getMyEnterpriseLowStockProducts() {
+        User currentUser = userService.getCurrentLoggedInUser();
+        return getLowStockProducts(currentUser.getEnterprise().getId());
     }
 
     private ProductDTO mapToDTO(Product product) {
@@ -335,5 +439,15 @@ public class ProductServiceImpl implements ProductService {
         }
         return "products/" + uniqueFileName;
 
+    }
+
+    private void validateProductAccess(User currentUser, Product product) {
+        if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
+            return;
+        }
+        if (!product.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
+            throw new InvalidCredentialsException(
+                "You can only access products from your own enterprise");
+        }
     }
 }

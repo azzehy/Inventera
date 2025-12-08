@@ -10,4 +10,5 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Long> {
     Optional<Enterprise> findByEmail(String email);
     boolean existsByEmail(String email);
     Optional<Enterprise> findByName(String name);
+    boolean existsByName(String name);
 }
