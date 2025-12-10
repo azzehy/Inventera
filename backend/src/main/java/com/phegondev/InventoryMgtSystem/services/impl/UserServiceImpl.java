@@ -13,6 +13,8 @@ import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.repositories.UserRepository;
 import com.phegondev.InventoryMgtSystem.security.JwtUtils;
 import com.phegondev.InventoryMgtSystem.services.UserService;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -21,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.phegondev.InventoryMgtSystem.dtos.TransactionDTO;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,31 +40,41 @@ public class UserServiceImpl implements UserService {
     private final JwtUtils jwtUtils;
 
     @Override
-    public Response registerUser(RegisterRequest registerRequest) {
+    public Response registerUser(RegisterRequest request) {
 
-        Enterprise enterprise = enterpriseRepository.findById(registerRequest.getEnterpriseId())
-                .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
-
-        UserRole role = registerRequest.getRole() != null 
-            ? registerRequest.getRole() 
-            : UserRole.MANAGER;
-
-        User userToSave = User.builder()
-                .name(registerRequest.getName())
-                .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .phoneNumber(registerRequest.getPhoneNumber())
-                .role(role)
-                .enterprise(enterprise)
-                .build();
-
-        userRepository.save(userToSave);
-
-        return Response.builder()
-                .status(200)
-                .message("User was successfully registered")
-                .build();
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new IllegalArgumentException("Email already exists");
     }
+
+    if (request.getEnterpriseEmail() != null && 
+        enterpriseRepository.existsByEmail(request.getEmail())) {
+        throw new IllegalArgumentException("Enterprise email already exists");
+    }
+
+    Enterprise enterprise = Enterprise.builder()
+            .name(request.getEnterpriseName())
+            .address(request.getEnterpriseAddress())
+            .email(request.getEnterpriseEmail())
+            .build();
+    
+    enterprise = enterpriseRepository.save(enterprise);
+
+    User admin = User.builder()
+            .name(request.getName())
+            .email(request.getEmail())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .phoneNumber(request.getPhoneNumber())
+            .role(UserRole.ADMIN)
+            .enterprise(enterprise)
+            .build();
+    
+    userRepository.save(admin);
+    
+    return Response.builder()
+            .status(200)
+            .message("Admin and Enterprise registered successfully")
+            .build();
+}
 
     @Override
     public Response loginUser(LoginRequest loginRequest) {
@@ -73,6 +87,14 @@ public class UserServiceImpl implements UserService {
         }
         
         String token = jwtUtils.generateToken(user.getEmail());
+        // final int COOKIE_MAX_AGE = 6 * 30 * 24 * 60 * 60;
+        // Cookie jwtCookie = new Cookie("jwt_token", token);
+        // jwtCookie.setHttpOnly(true);
+        // jwtCookie.setSecure(false); 
+        // jwtCookie.setPath("/");
+        // jwtCookie.setMaxAge(COOKIE_MAX_AGE);
+        
+        // response.addCookie(jwtCookie);
 
         return Response.builder()
                 .status(200)

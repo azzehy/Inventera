@@ -199,7 +199,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
                 .enterprise(enterpriseDTO)
                 .build();
     }
-
+    // 🙂🐧
     @Override
     public Response getMyEnterprise() {
         User currentUser = userService.getCurrentLoggedInUser();
@@ -212,7 +212,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         return getEnterpriseById(currentUser.getEnterprise().getId());
     }
-
+    // 🙂🐧
     @Override
     public Response getMyEnterpriseStats() {
         User currentUser = userService.getCurrentLoggedInUser();

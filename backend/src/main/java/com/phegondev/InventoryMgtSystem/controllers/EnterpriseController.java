@@ -16,17 +16,15 @@ public class EnterpriseController {
 
     private final EnterpriseService enterpriseService;
 
-    @PostMapping
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Response> createEnterprise(@Valid @RequestBody EnterpriseDTO enterpriseDTO) {
         return ResponseEntity.ok(enterpriseService.createEnterprise(enterpriseDTO));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN', 'ADMIN')")
-    public ResponseEntity<Response> updateEnterprise(
-            @PathVariable Long id,
-            @Valid @RequestBody EnterpriseDTO enterpriseDTO) {
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN')")
+    public ResponseEntity<Response> updateEnterprise(@PathVariable Long id, @Valid @RequestBody EnterpriseDTO enterpriseDTO) {
         return ResponseEntity.ok(enterpriseService.updateEnterprise(id, enterpriseDTO));
     }
 
@@ -53,13 +51,13 @@ public class EnterpriseController {
     public ResponseEntity<Response> getEnterpriseStats(@PathVariable Long id) {
         return ResponseEntity.ok(enterpriseService.getEnterpriseStats(id));
     }
-
+    // 🙂🐧
     @GetMapping("/my-enterprise")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterprise() {
         return ResponseEntity.ok(enterpriseService.getMyEnterprise());
     }
-
+    // 🙂🐧
     @GetMapping("/my-enterprise/stats")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterpriseStats() {

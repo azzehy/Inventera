@@ -32,8 +32,11 @@ public class RegisterRequest {
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
     
-    private UserRole role;
+    @NotBlank(message = "Enterprise name is required")
+    private String enterpriseName;
     
-    @NotNull(message = "Enterprise ID is required")
-    private Long enterpriseId;
+    private String enterpriseAddress;
+    
+    @Email(message = "Enterprise email should be valid")
+    private String enterpriseEmail;
 }

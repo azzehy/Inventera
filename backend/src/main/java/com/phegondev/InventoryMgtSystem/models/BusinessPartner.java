@@ -25,7 +25,7 @@ public class BusinessPartner {
     private String address;
 
     @Column(unique = true)
-    private String Email;
+    private String email;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,6 +40,6 @@ public class BusinessPartner {
     
     @Override
     public String toString() {
-        return "BusinessPartner{id=" + id + ", name='" + name + "', type=" + type + " , email='" + Email + "', numero='" + numero + "', address='" + address + "', enterprise=" + enterprise.getName() + "}";
+        return "BusinessPartner{id=" + id + ", name='" + name + "', type=" + type + " , email='" + email + "', numero='" + numero + "', address='" + address + "', enterprise=" + enterprise.getName() + "}";
     }
 }

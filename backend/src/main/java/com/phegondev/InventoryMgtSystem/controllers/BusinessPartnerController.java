@@ -17,13 +17,13 @@ public class BusinessPartnerController {
     
     private final BusinessPartnerService businessPartnerService;
 
-    @PostMapping
+    @PostMapping("/addBusnissPartner")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> addBusinessPartner(@Valid @RequestBody BusinessPartnerDTO businessPartnerDTO) {
         return ResponseEntity.ok(businessPartnerService.addBusinessPartner(businessPartnerDTO));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> updateBusinessPartner(@PathVariable Long id, @Valid @RequestBody BusinessPartnerDTO businessPartnerDTO) {
         return ResponseEntity.ok(businessPartnerService.updateBusinessPartner(id, businessPartnerDTO));
@@ -67,24 +67,25 @@ public class BusinessPartnerController {
         return ResponseEntity.ok(businessPartnerService.getBusinessPartnersByEnterpriseAndType(enterpriseId, type));
     }
 
+    // A SUPPRIMER 🙂
     @GetMapping("/my-partners")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterprisePartners() {
         return ResponseEntity.ok(businessPartnerService.getMyEnterprisePartners());
     }
-
+    // A SUPPRIMER 🙂
     @GetMapping("/my-partners/type/{type}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterprisePartnersByType(@PathVariable BusinessPartnerType type) {
         return ResponseEntity.ok(businessPartnerService.getMyEnterprisePartnersByType(type));
     }
-
+    //🙂🐧
     @GetMapping("/my-suppliers")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterpriseSuppliers() {
         return ResponseEntity.ok(businessPartnerService.getMyEnterpriseSuppliers());
     }
-
+    //🙂🐧
     @GetMapping("/my-clients")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterpriseClients() {

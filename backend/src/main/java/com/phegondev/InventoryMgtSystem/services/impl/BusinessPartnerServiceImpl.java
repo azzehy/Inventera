@@ -64,7 +64,7 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
                 .name(businessPartnerDTO.getName())
                 .numero(businessPartnerDTO.getNumero())
                 .address(businessPartnerDTO.getAddress())
-                .Email(businessPartnerDTO.getEmail())
+                .email(businessPartnerDTO.getEmail())
                 .type(businessPartnerDTO.getType())
                 .enterprise(enterprise)
                 .build();
@@ -154,7 +154,7 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
     public Response getAllBusinessPartners() {
         User currentUser = userService.getCurrentLoggedInUser();
 
-        if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
+        if ((currentUser.getRole() != UserRole.SUPER_ADMIN)) {
             throw new InvalidCredentialsException("Only SUPER_ADMIN can view all business partners");
         }
 
@@ -298,6 +298,7 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
                 .build();
     }
     
+    // A SUPPRIMER 🙂
     @Override
     public Response getMyEnterprisePartners() {
         User currentUser = userService.getCurrentLoggedInUser();
@@ -311,6 +312,7 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
         return getBusinessPartnersByEnterprise(currentUser.getEnterprise().getId());
     }
 
+    // A SUPPRIMER 🙂
     @Override
     public Response getMyEnterprisePartnersByType(BusinessPartnerType type) {
         User currentUser = userService.getCurrentLoggedInUser();
@@ -324,11 +326,12 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
         return getBusinessPartnersByEnterpriseAndType(currentUser.getEnterprise().getId(), type);
     }
 
+    // 🙂🐧
     @Override
     public Response getMyEnterpriseSuppliers() {
         return getMyEnterprisePartnersByType(BusinessPartnerType.SUPPLIER);
     }
-
+    // 🙂🐧
     @Override
     public Response getMyEnterpriseClients() {
         return getMyEnterprisePartnersByType(BusinessPartnerType.CLIENT);

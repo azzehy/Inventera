@@ -48,7 +48,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.deleteCategory(id));
     }
 
-    @GetMapping("/enterprise/{enterpriseId}")
+    @GetMapping("/entreprise/{enterpriseId}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getCategoriesByEnterprise(@PathVariable Long enterpriseId) {
         return ResponseEntity.ok(categoryService.getCategoriesByEnterprise(enterpriseId));

@@ -2,7 +2,6 @@ package com.phegondev.InventoryMgtSystem.controllers;
 
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
-import com.phegondev.InventoryMgtSystem.models.User;
 import com.phegondev.InventoryMgtSystem.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +54,4 @@ public class UserController {
     public ResponseEntity<Response> getCurrentUser() {
         return ResponseEntity.ok(userService.getCurrentUserDTO());
     }
-
-
-
-
 }

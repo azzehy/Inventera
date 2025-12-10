@@ -83,9 +83,9 @@ public class ProductServiceImpl implements ProductService {
 
         if (imageFile != null && !imageFile.isEmpty()) {
             log.info("Image file exists");
-            // String imagePath = saveImage(imageFile); //use this when you haven't setup
+            String imagePath = saveImage(imageFile); //use this when you haven't setup
             // your frontend
-            String imagePath = saveImage2(imageFile); // use this when you have set up your frontend locally
+            //String imagePath = saveImage2(imageFile); // use this when you have set up your frontend locally
 
             System.out.println("IMAGE URL IS: " + imagePath);
             productToSave.setImageUrl(imagePath);
@@ -111,8 +111,8 @@ public class ProductServiceImpl implements ProductService {
         validateProductAccess(currentUser, existingProduct);
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            // String imagePath = saveImage(imageFile);
-            String imagePath = saveImage2(imageFile);
+            String imagePath = saveImage(imageFile);
+            //String imagePath = saveImage2(imageFile);
 
             System.out.println("IMAGE URL IS: " + imagePath);
             existingProduct.setImageUrl(imagePath);
@@ -272,7 +272,7 @@ public class ProductServiceImpl implements ProductService {
     public Response getProductsByEnterprise(Long enterpriseId) {
         User currentUser = userService.getCurrentLoggedInUser();
 
-        Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
+        enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
 
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {

@@ -47,7 +47,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.saveProduct(productDTO, imageFile));
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{productId}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> updateProduct(
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
@@ -60,7 +60,7 @@ public class ProductController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "stockMinimum", required = false) Integer stockMinimum,
             @RequestParam(value = "expiryDate", required = false) LocalDateTime expiryDate,
-            @RequestParam("productId") Long productId
+            @PathVariable Long productId
     ) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(productId);
