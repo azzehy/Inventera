@@ -347,13 +347,13 @@ public class ProductServiceImpl implements ProductService {
                 .products(productDTOList)
                 .build();
     }
-
+    // a supprimer 🙂🐧
     @Override
     public Response getMyEnterpriseProducts() {
         User currentUser = userService.getCurrentLoggedInUser();
         return getProductsByEnterprise(currentUser.getEnterprise().getId());
     }
-
+    // a supprimer 🙂🐧
     @Override
     public Response getMyEnterpriseLowStockProducts() {
         User currentUser = userService.getCurrentLoggedInUser();

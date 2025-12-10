@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.phegondev.InventoryMgtSystem.dtos.TransactionDTO;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,42 +41,42 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response registerUser(RegisterRequest request) {
 
-    if (userRepository.existsByEmail(request.getEmail())) {
-        throw new IllegalArgumentException("Email already exists");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        if (request.getEnterpriseEmail() != null &&
+                enterpriseRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Enterprise email already exists");
+        }
+
+        Enterprise enterprise = Enterprise.builder()
+                .name(request.getEnterpriseName())
+                .address(request.getEnterpriseAddress())
+                .email(request.getEnterpriseEmail())
+                .build();
+
+        enterprise = enterpriseRepository.save(enterprise);
+
+        User admin = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
+                .role(UserRole.ADMIN)
+                .enterprise(enterprise)
+                .build();
+
+        userRepository.save(admin);
+
+        return Response.builder()
+                .status(200)
+                .message("Admin and Enterprise registered successfully")
+                .build();
     }
-
-    if (request.getEnterpriseEmail() != null && 
-        enterpriseRepository.existsByEmail(request.getEmail())) {
-        throw new IllegalArgumentException("Enterprise email already exists");
-    }
-
-    Enterprise enterprise = Enterprise.builder()
-            .name(request.getEnterpriseName())
-            .address(request.getEnterpriseAddress())
-            .email(request.getEnterpriseEmail())
-            .build();
-    
-    enterprise = enterpriseRepository.save(enterprise);
-
-    User admin = User.builder()
-            .name(request.getName())
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .phoneNumber(request.getPhoneNumber())
-            .role(UserRole.ADMIN)
-            .enterprise(enterprise)
-            .build();
-    
-    userRepository.save(admin);
-    
-    return Response.builder()
-            .status(200)
-            .message("Admin and Enterprise registered successfully")
-            .build();
-}
 
     @Override
-    public Response loginUser(LoginRequest loginRequest) {
+    public Response loginUser(LoginRequest loginRequest, HttpServletResponse response) {
 
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new NotFoundException("Email Not Found"));
@@ -85,16 +84,14 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Password Does Not Match");
         }
-        
+
         String token = jwtUtils.generateToken(user.getEmail());
-        // final int COOKIE_MAX_AGE = 6 * 30 * 24 * 60 * 60;
-        // Cookie jwtCookie = new Cookie("jwt_token", token);
-        // jwtCookie.setHttpOnly(true);
-        // jwtCookie.setSecure(false); 
-        // jwtCookie.setPath("/");
-        // jwtCookie.setMaxAge(COOKIE_MAX_AGE);
-        
-        // response.addCookie(jwtCookie);
+        Cookie jwtCookie = new Cookie("jwt_token", token);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(false);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(60 * 60 * 24 * 30 * 6);
+        response.addCookie(jwtCookie);
 
         return Response.builder()
                 .status(200)
@@ -154,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response updateUser(Long id, UserDTO userDTO) {
-        User currentUser = getCurrentLoggedInUser();       
+        User currentUser = getCurrentLoggedInUser();
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
 
@@ -170,18 +167,18 @@ public class UserServiceImpl implements UserService {
             existingUser.setName(userDTO.getName());
         }
         if (userDTO.getRole() != null) {
-            if (currentUser.getRole() != UserRole.SUPER_ADMIN && 
-                currentUser.getRole() != UserRole.ADMIN) {
+            if (currentUser.getRole() != UserRole.SUPER_ADMIN &&
+                    currentUser.getRole() != UserRole.ADMIN) {
                 throw new InvalidCredentialsException("You don't have permission to change roles");
             }
-            if (currentUser.getRole() == UserRole.ADMIN && 
-                userDTO.getRole() == UserRole.SUPER_ADMIN) {
+            if (currentUser.getRole() == UserRole.ADMIN &&
+                    userDTO.getRole() == UserRole.SUPER_ADMIN) {
                 throw new InvalidCredentialsException("You cannot assign SUPER_ADMIN role");
             }
             existingUser.setRole(userDTO.getRole());
         }
-        if (userDTO.getEnterpriseId() != null && 
-            !userDTO.getEnterpriseId().equals(existingUser.getEnterprise().getId())) {
+        if (userDTO.getEnterpriseId() != null &&
+                !userDTO.getEnterpriseId().equals(existingUser.getEnterprise().getId())) {
             if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
                 throw new InvalidCredentialsException("Only SUPER_ADMIN can change enterprise");
             }
@@ -193,7 +190,7 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
-        
+
         userRepository.save(existingUser);
 
         return Response.builder()
@@ -214,9 +211,9 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("You cannot delete your own account");
         }
 
-        if (currentUser.getRole() == UserRole.ADMIN && 
-            (userToDelete.getRole() == UserRole.ADMIN || 
-             userToDelete.getRole() == UserRole.SUPER_ADMIN)) {
+        if (currentUser.getRole() == UserRole.ADMIN &&
+                (userToDelete.getRole() == UserRole.ADMIN ||
+                        userToDelete.getRole() == UserRole.SUPER_ADMIN)) {
             throw new InvalidCredentialsException("You cannot delete an admin account");
         }
 
@@ -254,8 +251,8 @@ public class UserServiceImpl implements UserService {
     public Response getUsersByEnterprise(Long enterpriseId) {
         User currentUser = getCurrentLoggedInUser();
 
-        if (currentUser.getRole() == UserRole.ADMIN && 
-            !currentUser.getEnterprise().getId().equals(enterpriseId)) {
+        if (currentUser.getRole() == UserRole.ADMIN &&
+                !currentUser.getEnterprise().getId().equals(enterpriseId)) {
             throw new InvalidCredentialsException("You can only view users from your enterprise");
         }
         enterpriseRepository.findById(enterpriseId)
@@ -322,13 +319,11 @@ public class UserServiceImpl implements UserService {
 
     private UserDTO mapToDTOWithTransactions(User user) {
         UserDTO dto = mapToDTO(user);
-        
+
         if (user.getTransactions() != null && !user.getTransactions().isEmpty()) {
-            List<TransactionDTO> transactionDTOs = 
-                user.getTransactions().stream()
+            List<TransactionDTO> transactionDTOs = user.getTransactions().stream()
                     .map(transaction -> {
-                        TransactionDTO transactionDTO = 
-                            new TransactionDTO();
+                        TransactionDTO transactionDTO = new TransactionDTO();
                         transactionDTO.setId(transaction.getId());
                         transactionDTO.setTotalPrice(transaction.getTotalPrice());
                         transactionDTO.setQtyProducts(transaction.getQtyProducts());
@@ -343,7 +338,7 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toList());
             dto.setTransactions(transactionDTOs);
         }
-        
+
         return dto;
     }
 
@@ -358,7 +353,7 @@ public class UserServiceImpl implements UserService {
                 .user(userDTO)
                 .build();
     }
-    
+
     private void validateUserAccess(User currentUser, User targetUser) {
         if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
             return;
