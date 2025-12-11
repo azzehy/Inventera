@@ -246,7 +246,7 @@ public class BusinessPartnerServiceImpl implements BusinessPartnerService {
     public Response getBusinessPartnersByEnterprise(Long enterpriseId) {
         User currentUser = userService.getCurrentLoggedInUser();
 
-        Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
+        enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
         
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
