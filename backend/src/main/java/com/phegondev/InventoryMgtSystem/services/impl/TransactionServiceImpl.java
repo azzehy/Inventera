@@ -89,6 +89,13 @@ public class TransactionServiceImpl implements TransactionService {
                     "Product '" + product.getName() + "' does not belong to this enterprise");
             }
 
+            if (request.getTransactionType() == TransactionType.SALE || 
+                request.getTransactionType() == TransactionType.RETURN_TO_SUPPLIER) {
+                if (product.getQuantity() < lineRequest.getQuantity()) {
+                    throw new IllegalArgumentException("Insufficient stock for product: " + product.getName() + ". Available: " + product.getQuantity() + ", Required: " + lineRequest.getQuantity());
+                }
+            }
+
             BigDecimal unitPrice = lineRequest.getUnitPrice() != null 
                 ? lineRequest.getUnitPrice() 
                 : product.getPrice();
@@ -113,15 +120,12 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setDetails(transactionLines);
         transaction.setQtyProducts(totalQuantity);
         transaction.setTotalPrice(totalPriceSum);
-        transaction.setStatus(TransactionStatus.COMPLETED);
 
         transactionRepository.save(transaction);
-
-        String message = getSuccessMessage(request.getTransactionType());
         
         return Response.builder()
                 .status(200)
-                .message(message)
+                .message("Transaction created successfully with PENDING status")
                 .build();
     }
 
@@ -225,6 +229,36 @@ public class TransactionServiceImpl implements TransactionService {
 
         validateTransactionAccess(currentUser, existingTransaction);
 
+        TransactionStatus oldStatus = existingTransaction.getStatus();
+        
+        switch (status) {
+            case PROCESSING:
+                if (oldStatus != TransactionStatus.PENDING) {
+                    throw new IllegalStateException(
+                        "Only PENDING transactions can be moved to PROCESSING, You tried to move from " + oldStatus);
+                }
+                break;
+            case COMPLETED:
+                if (oldStatus == TransactionStatus.COMPLETED) {
+                    throw new IllegalStateException("Transaction is already COMPLETED");
+                }
+                if (oldStatus == TransactionStatus.CANCELLED) {
+                    throw new IllegalStateException("Cannot complete a CANCELLED transaction");
+                }
+                applyStockChanges(existingTransaction, false);
+                break;
+            case CANCELLED:
+                if (oldStatus == TransactionStatus.CANCELLED) {
+                    throw new IllegalStateException("Transaction is already CANCELLED");
+                }
+                if (oldStatus == TransactionStatus.COMPLETED) {
+                applyStockChanges(existingTransaction, true);
+                }
+                break;
+            case PENDING:
+                throw new IllegalStateException("Cannot move back to PENDING status");
+        }
+                
         existingTransaction.setStatus(status);
         existingTransaction.setUpdatedAt(LocalDateTime.now());
 
@@ -232,8 +266,34 @@ public class TransactionServiceImpl implements TransactionService {
 
         return Response.builder()
                 .status(200)
-                .message("Transaction Status Successfully Updated")
+                .message("Transaction Status Successfully Updated to " + status)
                 .build();
+    }
+
+    private void applyStockChanges(Transaction transaction, boolean reverse) {
+        for (TransactionLine line : transaction.getDetails()) {
+            Product product = line.getProduct();
+            Integer quantity = line.getQuantity();
+            TransactionType type = transaction.getTransactionType();
+            if (reverse) {
+                type = reverseTransactionType(type);
+            }
+
+            updateProductStock(product, quantity, type);
+        }
+    }
+
+    private TransactionType reverseTransactionType(TransactionType type) {
+        switch (type) {
+            case PURCHASE:
+                return TransactionType.SALE;
+            case SALE:
+                return TransactionType.PURCHASE;
+            case RETURN_TO_SUPPLIER:
+                return TransactionType.PURCHASE;
+            default:
+                throw new IllegalArgumentException("Unknown transaction type: " + type);
+        }
     }
 
     @Override
@@ -327,19 +387,6 @@ public class TransactionServiceImpl implements TransactionService {
                 break;
         }
         productRepository.save(product);
-    }
-
-    private String getSuccessMessage(TransactionType type) {
-        switch (type) {
-            case PURCHASE:
-                return "Purchase completed successfully";
-            case SALE:
-                return "Sale completed successfully";
-            case RETURN_TO_SUPPLIER:
-                return "Return completed successfully";
-            default:
-                return "Transaction completed successfully";
-        }
     }
 
     private TransactionDTO mapToDTO(Transaction transaction) {

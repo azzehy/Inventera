@@ -118,13 +118,13 @@ public class ProductController {
     public ResponseEntity<Response> getLowStockProducts(@PathVariable Long enterpriseId) {
         return ResponseEntity.ok(productService.getLowStockProducts(enterpriseId));
     }
-    // a supprimer 🙂🐧
+    //🙂🐧
     @GetMapping("/my-products")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterpriseProducts() {
         return ResponseEntity.ok(productService.getMyEnterpriseProducts());
     }
-    // a supprimer 🙂🐧
+    //🙂🐧
     @GetMapping("/my-low-stock")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterpriseLowStockProducts() {

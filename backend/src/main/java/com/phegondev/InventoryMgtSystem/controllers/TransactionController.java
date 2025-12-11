@@ -23,18 +23,17 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.createTransaction(request));
     }
 
+    // nb9aw ndiro create transaction w blamankhdmo bhad purchase/sale/return hit nfss lhaja
     @PostMapping("/purchase")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> purchase(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.purchase(request));
     }
-
     @PostMapping("/sell")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> sell(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.ok(transactionService.sell(request));
     }
-
     @PostMapping("/return")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> returnToSupplier(@Valid @RequestBody TransactionRequest request) {
@@ -89,7 +88,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(transactionService.getTransactionsByPartner(partnerId, page, size));
     }
-
+    //🙂🐧 on peut utiliser ce get a la place de /enterprise/{enterpriseId}
     @GetMapping("/my-transactions")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyTransactions(

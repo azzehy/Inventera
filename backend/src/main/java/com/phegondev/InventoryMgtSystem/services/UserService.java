@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
     Response registerUser(RegisterRequest registerRequest);
-    // Response loginUser(LoginRequest loginRequest, HttpServletResponse response);
     Response loginUser(LoginRequest loginRequest, HttpServletResponse response);
     Response getAllUsers();
     User getCurrentLoggedInUser();
