@@ -235,6 +235,7 @@ public class UserServiceImpl implements UserService {
 
         if (userDTO.getTransactions() != null) {
             userDTO.getTransactions().forEach(transactionDTO -> {
+                //pour eviter la redondance 
                 transactionDTO.setUser(null);
                 transactionDTO.setPartner(null);
             });

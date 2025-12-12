@@ -24,11 +24,17 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // @GetMapping("/all/role")
-    // @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    // public ResponseEntity<Response> getUsersByRole(@RequestBody UserRole role) {
-    //     return ResponseEntity.ok(userService.getUsersByRole(role));
-    // }
+    @GetMapping("/all/role")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<Response> getUsersByRole(@RequestParam UserRole role) {
+        return ResponseEntity.ok(userService.getUsersByRole(role));
+    }
+
+    @GetMapping("/all/enterprise/{enterpriseId}/role")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<Response> getUsersByEnterpriseAndRole(@PathVariable Long enterpriseId, @RequestParam UserRole role) {
+        return ResponseEntity.ok(userService.getUsersByEnterpriseAndRole(enterpriseId, role));
+    }
 
 
     @GetMapping("/enterprise/{enterpriseId}")
