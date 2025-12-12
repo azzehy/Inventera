@@ -2,6 +2,7 @@ package com.phegondev.InventoryMgtSystem.controllers;
 
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
+import com.phegondev.InventoryMgtSystem.enums.UserRole;
 import com.phegondev.InventoryMgtSystem.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,13 @@ public class UserController {
     public ResponseEntity<Response> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    // @GetMapping("/all/role")
+    // @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    // public ResponseEntity<Response> getUsersByRole(@RequestBody UserRole role) {
+    //     return ResponseEntity.ok(userService.getUsersByRole(role));
+    // }
+
 
     @GetMapping("/enterprise/{enterpriseId}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN')")
