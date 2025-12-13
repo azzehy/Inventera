@@ -41,8 +41,6 @@ public class Product {
     @Column(length = 1000)
     private String description;
 
-    private LocalDateTime expiryDate;
-
     private String imageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -73,7 +71,6 @@ public class Product {
                 ", price=" + price +
                 ", stockQuantity=" + quantity +
                 ", description='" + description + '\'' +
-                ", expiryDate=" + expiryDate +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", createdAt=" + createdAt +
                 ", stockMinimum=" + stockMinimum +

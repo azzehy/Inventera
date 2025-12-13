@@ -76,7 +76,6 @@ public class ProductServiceImpl implements ProductService {
                 .quantity(productDTO.getQuantity())
                 .stockMinimum(productDTO.getStockMinimum())
                 .description(productDTO.getDescription())
-                .expiryDate(productDTO.getExpiryDate())
                 .category(category)
                 .enterprise(enterprise)
                 .build();
@@ -168,10 +167,6 @@ public class ProductServiceImpl implements ProductService {
 
         if (productDTO.getStockMinimum() != null && productDTO.getStockMinimum() >= 0) {
             existingProduct.setStockMinimum(productDTO.getStockMinimum());
-        }
-
-        if (productDTO.getExpiryDate() != null) {
-            existingProduct.setExpiryDate(productDTO.getExpiryDate());
         }
 
         productRepository.save(existingProduct);
@@ -369,7 +364,6 @@ public class ProductServiceImpl implements ProductService {
         dto.setQuantity(product.getQuantity());
         dto.setStockMinimum(product.getStockMinimum());
         dto.setDescription(product.getDescription());
-        dto.setExpiryDate(product.getExpiryDate());
         dto.setImageUrl(product.getImageUrl());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setEnterpriseId(product.getEnterprise().getId());

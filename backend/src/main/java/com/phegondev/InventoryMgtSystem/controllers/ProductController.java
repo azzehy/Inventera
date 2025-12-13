@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/products")
@@ -30,8 +29,7 @@ public class ProductController {
             @RequestParam("categoryId") Long categoryId,
             @RequestParam("enterpriseId") Long enterpriseId,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "stockMinimum", required = false, defaultValue = "0") Integer stockMinimum,
-            @RequestParam(value = "expiryDate", required = false) LocalDateTime expiryDate
+            @RequestParam(value = "stockMinimum", required = false, defaultValue = "0") Integer stockMinimum
     ) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setName(name);
@@ -42,7 +40,6 @@ public class ProductController {
         productDTO.setEnterpriseId(enterpriseId);
         productDTO.setDescription(description);
         productDTO.setStockMinimum(stockMinimum);
-        productDTO.setExpiryDate(expiryDate);
 
         return ResponseEntity.ok(productService.saveProduct(productDTO, imageFile));
     }
@@ -59,7 +56,6 @@ public class ProductController {
             @RequestParam(value = "enterpriseId", required = false) Long enterpriseId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "stockMinimum", required = false) Integer stockMinimum,
-            @RequestParam(value = "expiryDate", required = false) LocalDateTime expiryDate,
             @PathVariable Long productId
     ) {
         ProductDTO productDTO = new ProductDTO();
@@ -72,7 +68,6 @@ public class ProductController {
         productDTO.setEnterpriseId(enterpriseId);
         productDTO.setDescription(description);
         productDTO.setStockMinimum(stockMinimum);
-        productDTO.setExpiryDate(expiryDate);
 
         return ResponseEntity.ok(productService.updateProduct(productDTO, imageFile));
     }
