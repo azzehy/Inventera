@@ -27,4 +27,8 @@ public interface TransactionService {
     Response getTransactionsByPartner(Long partnerId, int page, int size);
 
     Response getMyEnterpriseTransactions(int page, int size);
+
+    // Response updateTransaction(Long transactionId, TransactionRequest request);
+
+    Response deleteTransaction(Long transactionId);
 }

@@ -41,8 +41,6 @@ public class ProductDTO {
     
     private String description;
     
-    private LocalDateTime expiryDate;
-    
     private String imageUrl;
     
     private LocalDateTime createdAt;

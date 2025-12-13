@@ -1,5 +1,6 @@
 package com.phegondev.InventoryMgtSystem.services;
 
+import com.phegondev.InventoryMgtSystem.dtos.CreateManagerRequest;
 import com.phegondev.InventoryMgtSystem.dtos.LoginRequest;
 import com.phegondev.InventoryMgtSystem.dtos.RegisterRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
@@ -7,12 +8,13 @@ import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
 import com.phegondev.InventoryMgtSystem.enums.UserRole;
 import com.phegondev.InventoryMgtSystem.models.User;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
     Response registerUser(RegisterRequest registerRequest);
-    // Response loginUser(LoginRequest loginRequest, HttpServletResponse response);
-    Response loginUser(LoginRequest loginRequest);
+    Response loginUser(LoginRequest loginRequest, HttpServletResponse response);
+    Response logoutUser(HttpServletRequest request, HttpServletResponse response);
     Response getAllUsers();
     User getCurrentLoggedInUser();
     Response getUserById(Long id);
@@ -23,5 +25,6 @@ public interface UserService {
     Response getUsersByRole(UserRole role);
     Response getUsersByEnterpriseAndRole(Long enterpriseId, UserRole role);
     Response getCurrentUserDTO();
+    Response createManager(CreateManagerRequest request);
     
 }
