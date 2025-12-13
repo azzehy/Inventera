@@ -1,5 +1,6 @@
 package com.phegondev.InventoryMgtSystem.services.impl;
 
+import com.phegondev.InventoryMgtSystem.dtos.CreateManagerRequest;
 import com.phegondev.InventoryMgtSystem.dtos.LoginRequest;
 import com.phegondev.InventoryMgtSystem.dtos.RegisterRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
@@ -12,7 +13,10 @@ import com.phegondev.InventoryMgtSystem.models.User;
 import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.repositories.UserRepository;
 import com.phegondev.InventoryMgtSystem.security.JwtUtils;
+import com.phegondev.InventoryMgtSystem.services.EmailService;
 import com.phegondev.InventoryMgtSystem.services.UserService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +42,11 @@ public class UserServiceImpl implements UserService {
     private final EnterpriseRepository enterpriseRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
+
+    // I sould change this url in application.properties file to the frontend login url
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Override
     public Response registerUser(RegisterRequest request) {
@@ -128,6 +137,80 @@ public class UserServiceImpl implements UserService {
                 .status(200)
                 .message("User Logged Out Successfully")
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public Response createManager(CreateManagerRequest request) {
+
+        User currentUser = getCurrentLoggedInUser();
+
+        if (currentUser.getRole() != UserRole.ADMIN && currentUser.getRole() != UserRole.SUPER_ADMIN) {
+            throw new InvalidCredentialsException("Only ADMIN or SUPER_ADMIN can create managers");
+        }
+
+        if (currentUser.getRole() == UserRole.ADMIN) {
+            if (!currentUser.getEnterprise().getId().equals(request.getEnterpriseId())) {
+                throw new InvalidCredentialsException(
+                        "You can only create managers for your own enterprise");
+            }
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already exists: " + request.getEmail());
+        }
+
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new IllegalArgumentException("Phone number already exists: " + request.getPhoneNumber());
+        }
+
+        Enterprise enterprise = enterpriseRepository.findById(request.getEnterpriseId())
+                .orElseThrow(() -> new NotFoundException("Enterprise not found with ID: " + request.getEnterpriseId()));
+
+        String temporaryPassword = generateTemporaryPassword();
+
+        User manager = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .phoneNumber(request.getPhoneNumber())
+                .password(passwordEncoder.encode(temporaryPassword))
+                .role(UserRole.MANAGER)
+                .enterprise(enterprise)
+                .build();
+
+        userRepository.save(manager);
+
+        try {
+            emailService.sendManagerWelcomeEmail(
+                    manager.getEmail(),
+                    manager.getName(),
+                    temporaryPassword,
+                    frontendUrl);
+            log.info("Welcome email sent to new manager: {}", manager.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to: {}", manager.getEmail(), e);
+        }
+
+        log.info("Manager created successfully by {} {}: Manager ID {}",
+                currentUser.getRole(), currentUser.getId(), manager.getId());
+
+        return Response.builder()
+                .status(200)
+                .message("Manager created successfully. Welcome email sent to: " + manager.getEmail())
+                .user(mapToDTO(manager))
+                .build();
+    }
+
+    private String generateTemporaryPassword() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < 12; i++) {
+            int index = (int) (Math.random() * characters.length());
+            password.append(characters.charAt(index));
+        }
+
+        return password.toString();
     }
 
     @Override

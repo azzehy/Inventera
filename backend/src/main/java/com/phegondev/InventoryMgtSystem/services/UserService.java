@@ -1,5 +1,6 @@
 package com.phegondev.InventoryMgtSystem.services;
 
+import com.phegondev.InventoryMgtSystem.dtos.CreateManagerRequest;
 import com.phegondev.InventoryMgtSystem.dtos.LoginRequest;
 import com.phegondev.InventoryMgtSystem.dtos.RegisterRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
@@ -24,5 +25,6 @@ public interface UserService {
     Response getUsersByRole(UserRole role);
     Response getUsersByEnterpriseAndRole(Long enterpriseId, UserRole role);
     Response getCurrentUserDTO();
+    Response createManager(CreateManagerRequest request);
     
 }

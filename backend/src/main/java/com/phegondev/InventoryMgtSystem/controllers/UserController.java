@@ -1,20 +1,21 @@
 package com.phegondev.InventoryMgtSystem.controllers;
 
+import com.phegondev.InventoryMgtSystem.dtos.CreateManagerRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
 import com.phegondev.InventoryMgtSystem.enums.UserRole;
 import com.phegondev.InventoryMgtSystem.services.UserService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
-
 
     private final UserService userService;
 
@@ -32,10 +33,10 @@ public class UserController {
 
     @GetMapping("/all/enterprise/{enterpriseId}/role")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<Response> getUsersByEnterpriseAndRole(@PathVariable Long enterpriseId, @RequestParam UserRole role) {
+    public ResponseEntity<Response> getUsersByEnterpriseAndRole(@PathVariable Long enterpriseId,
+            @RequestParam UserRole role) {
         return ResponseEntity.ok(userService.getUsersByEnterpriseAndRole(enterpriseId, role));
     }
-
 
     @GetMapping("/enterprise/{enterpriseId}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN')")
@@ -67,5 +68,12 @@ public class UserController {
     @GetMapping("/current")
     public ResponseEntity<Response> getCurrentUser() {
         return ResponseEntity.ok(userService.getCurrentUserDTO());
+    }
+
+    @PostMapping("/admin/create-manager")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN')")
+    public ResponseEntity<Response> createManager(@Valid @RequestBody CreateManagerRequest request) {
+        Response response = userService.createManager(request);
+        return ResponseEntity.ok(response);
     }
 }

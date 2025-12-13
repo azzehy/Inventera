@@ -18,8 +18,8 @@ secreteJwtString=phegondev123456789phegondev123456789
 # EMAIL CONFIGURATION
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=hibasebban@gmail.com
-spring.mail.password=jqrk ryey jfch xldd
+spring.mail.username=votre email
+spring.mail.password=votre mot de passe avec 2 steps verification
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.properties.mail.smtp.starttls.required=true
