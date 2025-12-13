@@ -1,6 +1,10 @@
 # Compiled class file
 *.class
+
+
 frontend/node_modules/
+backend/src/main/resources/application.properties
+
 # Log file
 *.log
 
