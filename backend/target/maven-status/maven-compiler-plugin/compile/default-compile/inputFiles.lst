@@ -11,9 +11,11 @@ E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\In
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\CategoryDTO.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\CreateManagerRequest.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\EnterpriseDTO.java
+E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\ForgotPasswordRequest.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\LoginRequest.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\ProductDTO.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\RegisterRequest.java
+E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\ResetPasswordRequest.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\Response.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\TransactionDTO.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\TransactionLineDTO.java

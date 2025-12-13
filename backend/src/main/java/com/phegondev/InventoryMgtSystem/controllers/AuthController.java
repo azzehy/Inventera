@@ -1,7 +1,9 @@
 package com.phegondev.InventoryMgtSystem.controllers;
 
+import com.phegondev.InventoryMgtSystem.dtos.ForgotPasswordRequest;
 import com.phegondev.InventoryMgtSystem.dtos.LoginRequest;
 import com.phegondev.InventoryMgtSystem.dtos.RegisterRequest;
+import com.phegondev.InventoryMgtSystem.dtos.ResetPasswordRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.services.UserService;
 
@@ -37,6 +39,18 @@ public class AuthController {
     public ResponseEntity<Response> logout(HttpServletRequest request, HttpServletResponse response) {
         Response logoutResponse = userService.logoutUser(request, response);
         return ResponseEntity.ok(logoutResponse);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Response> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        Response response = userService.forgotPassword(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Response> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        Response response = userService.resetPassword(request);
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -1,8 +1,10 @@
 package com.phegondev.InventoryMgtSystem.services.impl;
 
 import com.phegondev.InventoryMgtSystem.dtos.CreateManagerRequest;
+import com.phegondev.InventoryMgtSystem.dtos.ForgotPasswordRequest;
 import com.phegondev.InventoryMgtSystem.dtos.LoginRequest;
 import com.phegondev.InventoryMgtSystem.dtos.RegisterRequest;
+import com.phegondev.InventoryMgtSystem.dtos.ResetPasswordRequest;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
 import com.phegondev.InventoryMgtSystem.enums.UserRole;
@@ -30,8 +32,10 @@ import com.phegondev.InventoryMgtSystem.dtos.TransactionDTO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +48,8 @@ public class UserServiceImpl implements UserService {
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
 
-    // I sould change this url in application.properties file to the frontend login url
+    // I sould change this url in application.properties file to the frontend login
+    // url
     @Value("${app.frontend-url:http://localhost:3000}")
     private String frontendUrl;
 
@@ -211,6 +216,69 @@ public class UserServiceImpl implements UserService {
         }
 
         return password.toString();
+    }
+
+    @Override
+    @Transactional
+    public Response forgotPassword(ForgotPasswordRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("No account found with this email"));
+
+        String resetToken = generateResetToken();
+
+        LocalDateTime tokenExpiry = LocalDateTime.now().plusMinutes(15);
+
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(tokenExpiry);
+        userRepository.save(user);
+
+        try {
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(),
+                    user.getName(),
+                    resetToken,
+                    frontendUrl);
+            log.info("Password reset email sent to: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to: {}", user.getEmail(), e);
+            throw new RuntimeException("Failed to send password reset email. Please try again later.");
+        }
+
+        return Response.builder()
+                .status(200)
+                .message("Password reset link has been sent to your email: " + user.getEmail())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Response resetPassword(ResetPasswordRequest request) {
+
+        User user = userRepository.findByResetToken(request.getToken())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid or expired reset token"));
+
+        if (user.getResetTokenExpiry() == null || LocalDateTime.now().isAfter(user.getResetTokenExpiry())) {
+            throw new InvalidCredentialsException("Reset token has expired. Please request a new one.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+
+        userRepository.save(user);
+
+        log.info("Password successfully reset for user: {}", user.getEmail());
+
+        return Response.builder()
+                .status(200)
+                .message("Password has been reset successfully. You can now login with your new password.")
+                .build();
+    }
+
+    private String generateResetToken() {
+        return UUID.randomUUID().toString() + "-" + System.currentTimeMillis();
     }
 
     @Override
