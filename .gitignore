@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 frontend/node_modules/
+
 # Log file
 *.log
 
