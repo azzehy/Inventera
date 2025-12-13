@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.phegondev.InventoryMgtSystem.dtos.TransactionDTO;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,6 +100,33 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .token(token)
                 .expirationTime("6 months")
+                .build();
+    }
+
+    @Override
+    public Response logoutUser(HttpServletRequest request, HttpServletResponse response) {
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt_token".equals(cookie.getName())) {
+
+                    Cookie jwtCookie = new Cookie("jwt_token", null);
+                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setSecure(false);
+                    jwtCookie.setPath("/");
+                    jwtCookie.setMaxAge(0);
+                    response.addCookie(jwtCookie);
+
+                    log.info("User logged out successfully");
+                    break;
+                }
+            }
+        }
+
+        return Response.builder()
+                .status(200)
+                .message("User Logged Out Successfully")
                 .build();
     }
 
@@ -235,7 +263,7 @@ public class UserServiceImpl implements UserService {
 
         if (userDTO.getTransactions() != null) {
             userDTO.getTransactions().forEach(transactionDTO -> {
-                //pour eviter la redondance 
+                // pour eviter la redondance
                 transactionDTO.setUser(null);
                 transactionDTO.setPartner(null);
             });

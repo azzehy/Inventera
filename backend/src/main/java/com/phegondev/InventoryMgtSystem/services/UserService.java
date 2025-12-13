@@ -7,11 +7,13 @@ import com.phegondev.InventoryMgtSystem.dtos.UserDTO;
 import com.phegondev.InventoryMgtSystem.enums.UserRole;
 import com.phegondev.InventoryMgtSystem.models.User;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
     Response registerUser(RegisterRequest registerRequest);
     Response loginUser(LoginRequest loginRequest, HttpServletResponse response);
+    Response logoutUser(HttpServletRequest request, HttpServletResponse response);
     Response getAllUsers();
     User getCurrentLoggedInUser();
     Response getUserById(Long id);

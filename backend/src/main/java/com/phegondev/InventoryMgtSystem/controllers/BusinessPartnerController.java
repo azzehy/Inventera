@@ -67,13 +67,13 @@ public class BusinessPartnerController {
         return ResponseEntity.ok(businessPartnerService.getBusinessPartnersByEnterpriseAndType(enterpriseId, type));
     }
 
-    // A SUPPRIMER 🙂
+    //🙂🐧
     @GetMapping("/my-partners")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterprisePartners() {
         return ResponseEntity.ok(businessPartnerService.getMyEnterprisePartners());
     }
-    // A SUPPRIMER 🙂
+    //🙂🐧
     @GetMapping("/my-partners/type/{type}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
     public ResponseEntity<Response> getMyEnterprisePartnersByType(@PathVariable BusinessPartnerType type) {

@@ -62,7 +62,7 @@ public class TransactionController {
     public ResponseEntity<Response> getAllTransactions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "ALL") String filter) {
+            @RequestParam(defaultValue = "") String filter) {
         return ResponseEntity.ok(transactionService.getAllTransactions(page, size, filter));
     }
 
