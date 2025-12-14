@@ -32,7 +32,7 @@ public class TransactionController {
     // }
     
     @DeleteMapping("/delete/{transactionId}")
-    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN',' MANAGER')")
+    @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN','MANAGER')")
     public ResponseEntity<Response> deleteTransaction(@PathVariable Long transactionId) {
         return ResponseEntity.ok(transactionService.deleteTransaction(transactionId));
     }
@@ -68,8 +68,8 @@ public class TransactionController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'ADMIN', 'MANAGER')")
-    public ResponseEntity<Response> getAllTransactionById(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getAllTransactionById(id));
+    public ResponseEntity<Response> getTransactionById(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionService.getTransactionById(id));
     }
 
     @GetMapping("/month/{month}/year/{year}")

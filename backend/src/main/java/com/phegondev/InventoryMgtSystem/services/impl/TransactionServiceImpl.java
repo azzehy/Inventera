@@ -313,7 +313,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Response getAllTransactionById(Long id) {
+    public Response getTransactionById(Long id) {
         User currentUser = userService.getCurrentLoggedInUser();
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Transaction Not Found"));
