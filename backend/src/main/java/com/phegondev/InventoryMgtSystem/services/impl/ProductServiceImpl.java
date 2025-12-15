@@ -12,6 +12,7 @@ import com.phegondev.InventoryMgtSystem.models.User;
 import com.phegondev.InventoryMgtSystem.repositories.CategoryRepository;
 import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.repositories.ProductRepository;
+import com.phegondev.InventoryMgtSystem.services.CloudinaryService;
 import com.phegondev.InventoryMgtSystem.services.ProductService;
 import com.phegondev.InventoryMgtSystem.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final EnterpriseRepository enterpriseRepository;
     private final UserService userService;
-
-    private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/product-images/";
-
-    // AFTER YOUR FRONTEND IS SETUP CHANGE THE IMAGE DIRECTORY TO THE FRONTEND YOU
-    // ARE USING
-    private static final String IMAGE_DIRECTORY_2 = "/Users/dennismac/phegonDev/ims-react/public/products/";
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
@@ -55,18 +51,18 @@ public class ProductServiceImpl implements ProductService {
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
             if (!currentUser.getEnterprise().getId().equals(productDTO.getEnterpriseId())) {
                 throw new InvalidCredentialsException(
-                    "You can only create products for your own enterprise");
+                        "You can only create products for your own enterprise");
             }
         }
-       
+
         if (!category.getEnterprise().getId().equals(enterprise.getId())) {
             throw new InvalidCredentialsException(
-                "Category does not belong to this enterprise");
+                    "Category does not belong to this enterprise");
         }
 
         if (productRepository.existsBySkuAndEnterpriseId(productDTO.getSku(), enterprise.getId())) {
             throw new IllegalArgumentException(
-                "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
+                    "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
         }
 
         Product productToSave = Product.builder()
@@ -81,16 +77,12 @@ public class ProductServiceImpl implements ProductService {
                 .build();
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            log.info("Image file exists");
-            String imagePath = saveImage(imageFile); //use this when you haven't setup
-            // your frontend
-            //String imagePath = saveImage2(imageFile); // use this when you have set up your frontend locally
-
-            System.out.println("IMAGE URL IS: " + imagePath);
-            productToSave.setImageUrl(imagePath);
+            log.info("Uploading image to Cloudinary");
+            String imageUrl = cloudinaryService.uploadImage(imageFile);
+            log.info("Image URL from Cloudinary: {}", imageUrl);
+            productToSave.setImageUrl(imageUrl);
         }
 
-        // save the product entity
         productRepository.save(productToSave);
 
         return Response.builder()
@@ -103,18 +95,20 @@ public class ProductServiceImpl implements ProductService {
     public Response updateProduct(ProductDTO productDTO, MultipartFile imageFile) {
         User currentUser = userService.getCurrentLoggedInUser();
 
-        // check if product exisit
         Product existingProduct = productRepository.findById(productDTO.getId())
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
         validateProductAccess(currentUser, existingProduct);
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imagePath = saveImage(imageFile);
-            //String imagePath = saveImage2(imageFile);
+            if (existingProduct.getImageUrl() != null && !existingProduct.getImageUrl().isEmpty()) {
+                cloudinaryService.deleteImage(existingProduct.getImageUrl());
+            }
 
-            System.out.println("IMAGE URL IS: " + imagePath);
-            existingProduct.setImageUrl(imagePath);
+            String imageUrl = cloudinaryService.uploadImage(imageFile);
+            existingProduct.setImageUrl(imageUrl);
+            log.info("New image URL from Cloudinary: {}", imageUrl);
+
         }
 
         if (productDTO.getCategoryId() != null && productDTO.getCategoryId() > 0) {
@@ -123,7 +117,7 @@ public class ProductServiceImpl implements ProductService {
 
             if (!category.getEnterprise().getId().equals(existingProduct.getEnterprise().getId())) {
                 throw new InvalidCredentialsException(
-                    "Category does not belong to this product's enterprise");
+                        "Category does not belong to this product's enterprise");
             }
             existingProduct.setCategory(category);
         }
@@ -132,23 +126,24 @@ public class ProductServiceImpl implements ProductService {
             if (!productDTO.getEnterpriseId().equals(existingProduct.getEnterprise().getId())) {
                 if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
                     throw new InvalidCredentialsException(
-                        "Only SUPER_ADMIN can change a product's enterprise");
+                            "Only SUPER_ADMIN can change a product's enterprise");
                 }
-            Enterprise enterprise = enterpriseRepository.findById(productDTO.getEnterpriseId())
-                    .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
-            existingProduct.setEnterprise(enterprise);
+                Enterprise enterprise = enterpriseRepository.findById(productDTO.getEnterpriseId())
+                        .orElseThrow(() -> new NotFoundException("Enterprise Not Found"));
+                existingProduct.setEnterprise(enterprise);
+            }
         }
 
         if (productDTO.getName() != null && !productDTO.getName().isBlank()) {
             existingProduct.setName(productDTO.getName());
         }
 
-        if (productDTO.getSku() != null && !productDTO.getSku().isBlank() 
-            && !productDTO.getSku().equals(existingProduct.getSku())) {
+        if (productDTO.getSku() != null && !productDTO.getSku().isBlank()
+                && !productDTO.getSku().equals(existingProduct.getSku())) {
             if (productRepository.existsBySkuAndEnterpriseId(
                     productDTO.getSku(), existingProduct.getEnterprise().getId())) {
                 throw new IllegalArgumentException(
-                    "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
+                        "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
             }
             existingProduct.setSku(productDTO.getSku());
         }
@@ -170,13 +165,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productRepository.save(existingProduct);
-        }
 
         return Response.builder()
                 .status(200)
                 .message("Product Updated successfully")
                 .build();
-        
+
     }
 
     @Override
@@ -227,6 +221,10 @@ public class ProductServiceImpl implements ProductService {
 
         validateProductAccess(currentUser, product);
 
+        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            cloudinaryService.deleteImage(product.getImageUrl());
+        }
+
         productRepository.deleteById(id);
 
         return Response.builder()
@@ -239,13 +237,13 @@ public class ProductServiceImpl implements ProductService {
     public Response searchProduct(String input) {
         User currentUser = userService.getCurrentLoggedInUser();
 
-        List<Product> products ;
+        List<Product> products;
 
         if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
             products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
         } else {
             products = productRepository.findByNameContainingOrDescriptionContainingAndEnterpriseId(
-                input, input, currentUser.getEnterprise().getId());
+                    input, input, currentUser.getEnterprise().getId());
         }
 
         if (products.isEmpty()) {
@@ -273,7 +271,7 @@ public class ProductServiceImpl implements ProductService {
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
             if (!currentUser.getEnterprise().getId().equals(enterpriseId)) {
                 throw new InvalidCredentialsException(
-                    "You can only view products from your own enterprise");
+                        "You can only view products from your own enterprise");
             }
         }
 
@@ -299,7 +297,7 @@ public class ProductServiceImpl implements ProductService {
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
             if (!category.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
                 throw new InvalidCredentialsException(
-                    "This category does not belong to your enterprise");
+                        "This category does not belong to your enterprise");
             }
         }
 
@@ -326,7 +324,7 @@ public class ProductServiceImpl implements ProductService {
         if (currentUser.getRole() != UserRole.SUPER_ADMIN) {
             if (!currentUser.getEnterprise().getId().equals(enterpriseId)) {
                 throw new InvalidCredentialsException(
-                    "You can only view low stock products from your own enterprise");
+                        "You can only view low stock products from your own enterprise");
             }
         }
 
@@ -342,13 +340,15 @@ public class ProductServiceImpl implements ProductService {
                 .products(productDTOList)
                 .build();
     }
-    // a supprimer 🙂🐧
+
+    // 🙂🐧
     @Override
     public Response getMyEnterpriseProducts() {
         User currentUser = userService.getCurrentLoggedInUser();
         return getProductsByEnterprise(currentUser.getEnterprise().getId());
     }
-    // a supprimer 🙂🐧
+
+    // 🙂🐧
     @Override
     public Response getMyEnterpriseLowStockProducts() {
         User currentUser = userService.getCurrentLoggedInUser();
@@ -373,75 +373,13 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
-    // this save to the root of your project
-    private String saveImage(MultipartFile imageFile) {
-
-        // validate image and check if it is greater than 1GIB
-        if (!imageFile.getContentType().startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
-            throw new IllegalArgumentException("Only image files under 1GIG is allowed");
-        }
-
-        // create the directory if it doesn't exist
-        File directory = new File(IMAGE_DIRECTORY);
-
-        if (!directory.exists()) {
-            directory.mkdir();
-            log.info("Directory was created");
-        }
-
-        // generate unique file name for the image
-        String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-
-        // Get the absolute path of the image
-        String imagePath = IMAGE_DIRECTORY + uniqueFileName;
-
-        try {
-            File destinationFile = new File(imagePath);
-            imageFile.transferTo(destinationFile); // we are writing the image to this folder
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error saving Image: " + e.getMessage());
-        }
-        return imagePath;
-    }
-
-    // This saved image to the public folder in your frontend
-    // Use this if your have setup your frontend
-    private String saveImage2(MultipartFile imageFile) {
-        // validate image and check if it is greater than 1GIB
-        if (!imageFile.getContentType().startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
-            throw new IllegalArgumentException("Only image files under 1GIG is allowed");
-        }
-
-        // create the directory if it doesn't exist
-        File directory = new File(IMAGE_DIRECTORY_2);
-
-        if (!directory.exists()) {
-            directory.mkdir();
-            log.info("Directory was created");
-        }
-        // generate unique file name for the image
-        String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-
-        // Get the absolute path of the image
-        String imagePath = IMAGE_DIRECTORY_2 + uniqueFileName;
-
-        try {
-            File destinationFile = new File(imagePath);
-            imageFile.transferTo(destinationFile); // we are writing the image to this folder
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error saving Image: " + e.getMessage());
-        }
-        return "products/" + uniqueFileName;
-
-    }
-
     private void validateProductAccess(User currentUser, Product product) {
         if (currentUser.getRole() == UserRole.SUPER_ADMIN) {
             return;
         }
         if (!product.getEnterprise().getId().equals(currentUser.getEnterprise().getId())) {
             throw new InvalidCredentialsException(
-                "You can only access products from your own enterprise");
+                    "You can only access products from your own enterprise");
         }
     }
 }
