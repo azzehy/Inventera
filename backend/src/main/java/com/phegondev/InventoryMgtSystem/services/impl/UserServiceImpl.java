@@ -17,6 +17,7 @@ import com.phegondev.InventoryMgtSystem.repositories.UserRepository;
 import com.phegondev.InventoryMgtSystem.security.JwtUtils;
 import com.phegondev.InventoryMgtSystem.services.EmailService;
 import com.phegondev.InventoryMgtSystem.services.UserService;
+import com.phegondev.InventoryMgtSystem.services.SubscriptionChecker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
+    private final SubscriptionChecker subscriptionChecker;
 
     // I sould change this url in application.properties file to the frontend login
     // url
@@ -171,6 +173,16 @@ public class UserServiceImpl implements UserService {
 
         Enterprise enterprise = enterpriseRepository.findById(request.getEnterpriseId())
                 .orElseThrow(() -> new NotFoundException("Enterprise not found with ID: " + request.getEnterpriseId()));
+
+        if (!subscriptionChecker.canAddUser(enterprise)) {
+            int remaining = subscriptionChecker.getRemainingUsers(enterprise);
+            
+            return Response.builder()
+                    .status(403)
+                    .message("User limit reached! You have " + remaining + 
+                             " users remaining. Please upgrade your plan.")
+                    .build();
+        }
 
         String temporaryPassword = generateTemporaryPassword();
 

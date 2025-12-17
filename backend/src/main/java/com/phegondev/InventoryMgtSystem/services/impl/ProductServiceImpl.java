@@ -14,6 +14,7 @@ import com.phegondev.InventoryMgtSystem.repositories.EnterpriseRepository;
 import com.phegondev.InventoryMgtSystem.repositories.ProductRepository;
 import com.phegondev.InventoryMgtSystem.services.CloudinaryService;
 import com.phegondev.InventoryMgtSystem.services.ProductService;
+import com.phegondev.InventoryMgtSystem.services.SubscriptionChecker;
 import com.phegondev.InventoryMgtSystem.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final EnterpriseRepository enterpriseRepository;
     private final UserService userService;
     private final CloudinaryService cloudinaryService;
+    private final SubscriptionChecker subscriptionChecker;
 
     @Override
     public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
@@ -63,6 +63,16 @@ public class ProductServiceImpl implements ProductService {
         if (productRepository.existsBySkuAndEnterpriseId(productDTO.getSku(), enterprise.getId())) {
             throw new IllegalArgumentException(
                     "A product with SKU '" + productDTO.getSku() + "' already exists in this enterprise");
+        }
+
+        if (!subscriptionChecker.canAddProduct(enterprise)) {
+            int remaining = subscriptionChecker.getRemainingProducts(enterprise);
+            
+            return Response.builder()
+                    .status(403)
+                    .message("Product limit reached! You have " + remaining + 
+                             " products remaining. Please upgrade your plan.")
+                    .build();
         }
 
         Product productToSave = Product.builder()
