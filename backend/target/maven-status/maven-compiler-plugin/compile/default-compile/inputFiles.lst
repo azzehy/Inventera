@@ -1,3 +1,4 @@
+E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\config\CloudinaryConfig.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\config\DataInitializer.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\config\ModelMapperConfig.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\AuthController.java
@@ -55,6 +56,7 @@ E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\In
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\security\SecurityConfig.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\BusinessPartnerService.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\CategoryService.java
+E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\CloudinaryService.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\EmailService.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\EnterpriseService.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\services\impl\BusinessPartnerServiceImpl.java

@@ -30,3 +30,8 @@ spring.mail.properties.mail.smtp.writetimeout=5000
 # APPLICATION URLS
 app.base-url=http://localhost:5050
 app.frontend-url=http://localhost:3000
+
+# CLOUDINARY CONFIGURATION
+cloudinary.cloud-name= hna cloud name
+cloudinary.api-key= hna api key
+cloudinary.api-secret= hna api secret

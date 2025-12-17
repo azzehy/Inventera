@@ -16,6 +16,7 @@ com\phegondev\InventoryMgtSystem\models\BusinessPartner$BusinessPartnerBuilder.c
 com\phegondev\InventoryMgtSystem\controllers\EnterpriseController.class
 com\phegondev\InventoryMgtSystem\models\Category$CategoryBuilder.class
 com\phegondev\InventoryMgtSystem\dtos\TransactionDTO.class
+com\phegondev\InventoryMgtSystem\services\CloudinaryService.class
 com\phegondev\InventoryMgtSystem\models\Product$ProductBuilder.class
 com\phegondev\InventoryMgtSystem\models\BusinessPartner.class
 com\phegondev\InventoryMgtSystem\models\Category.class
@@ -27,6 +28,7 @@ com\phegondev\InventoryMgtSystem\exceptions\GlobalExceptionHandler.class
 com\phegondev\InventoryMgtSystem\security\SecurityConfig.class
 com\phegondev\InventoryMgtSystem\services\impl\TransactionServiceImpl.class
 com\phegondev\InventoryMgtSystem\security\CustomUserDetailsService.class
+com\phegondev\InventoryMgtSystem\dtos\ForgotPasswordRequest.class
 com\phegondev\InventoryMgtSystem\exceptions\NameValueRequiredException.class
 com\phegondev\InventoryMgtSystem\specification\TransactionFilter.class
 com\phegondev\InventoryMgtSystem\config\ModelMapperConfig.class
@@ -48,6 +50,7 @@ com\phegondev\InventoryMgtSystem\enums\TransactionStatus.class
 com\phegondev\InventoryMgtSystem\dtos\TransactionRequest.class
 com\phegondev\InventoryMgtSystem\services\CategoryService.class
 com\phegondev\InventoryMgtSystem\models\User.class
+com\phegondev\InventoryMgtSystem\config\CloudinaryConfig.class
 com\phegondev\InventoryMgtSystem\models\TransactionLine.class
 com\phegondev\InventoryMgtSystem\models\Enterprise$EnterpriseBuilder.class
 com\phegondev\InventoryMgtSystem\exceptions\NotFoundException.class
@@ -70,6 +73,7 @@ com\phegondev\InventoryMgtSystem\dtos\CategoryDTO.class
 com\phegondev\InventoryMgtSystem\repositories\TransactionLineRepository.class
 com\phegondev\InventoryMgtSystem\repositories\EnterpriseRepository.class
 com\phegondev\InventoryMgtSystem\services\EmailService.class
+com\phegondev\InventoryMgtSystem\dtos\ResetPasswordRequest.class
 com\phegondev\InventoryMgtSystem\dtos\UserDTO.class
 com\phegondev\InventoryMgtSystem\controllers\AuthController.class
 com\phegondev\InventoryMgtSystem\controllers\CategoryController.class
