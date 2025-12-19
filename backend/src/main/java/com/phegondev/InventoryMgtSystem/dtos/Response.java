@@ -50,4 +50,9 @@ public class Response {
 
     private final LocalDateTime timestamp = LocalDateTime.now();
 
+    private List<PlanDTO> planList;
+    private PlanDTO plan;
+    private SubscriptionDTO subscription;
+    private CheckoutResponseDTO checkoutResponse;
+
 }
