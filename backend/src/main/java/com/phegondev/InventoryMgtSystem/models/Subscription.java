@@ -11,25 +11,28 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Subscription {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
     @JoinColumn(name = "enterprise_id")
     private Enterprise enterprise;
-    
+
     @ManyToOne
     @JoinColumn(name = "plan_id")
     private Plan plan;
-    
+
     private String status; // ACTIVE, CANCELLED, EXPIRED
-    
+
     private LocalDateTime startDate;
-    
+
     private LocalDateTime endDate;
-    
+
+    private String stripeSubscriptionId;
+    private String stripeCustomerId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
