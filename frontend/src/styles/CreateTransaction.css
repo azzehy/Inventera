@@ -1,0 +1,672 @@
+/* CreateTransaction.css */
+
+.create-transaction-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header Section */
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.btn-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0.75rem;
+  color: #4b5563;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
+  transform: translateX(-4px);
+}
+
+/* Message Alerts */
+.message {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message::before {
+  font-size: 1.25rem;
+}
+
+.message-success {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #166534;
+}
+
+.message-success::before {
+  content: "✓";
+}
+
+.message-error {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.message-error::before {
+  content: "✕";
+}
+
+/* Form Container */
+.transaction-form {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+}
+
+/* Form Sections */
+.form-section {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-section h2 {
+  background: linear-gradient(to right, #059669, #047857);
+  color: white;
+  padding: 0.75rem 1rem;
+  margin: -1.5rem -1.5rem 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-section h2::before {
+  content: "📋";
+  font-size: 1.25rem;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Form Inputs */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  color: #1f2937;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+/* Add Product Section */
+.add-product-section {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 2px dashed #d1d5db;
+}
+
+.btn-add-line {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #059669, #047857);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1.5rem;
+}
+
+.btn-add-line:hover {
+  background: linear-gradient(to right, #047857, #065f46);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+}
+
+/* Transaction Lines Table */
+.transaction-lines-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.transaction-lines-table thead {
+  background: #f9fafb;
+}
+
+.transaction-lines-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.transaction-lines-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s;
+}
+
+.transaction-lines-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.transaction-lines-table td {
+  padding: 1rem;
+  color: #4b5563;
+}
+
+.btn-delete {
+  padding: 0.5rem 0.75rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+  transform: scale(1.1);
+}
+
+/* Transaction Summary */
+.transaction-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.summary-item span {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summary-item strong {
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.summary-item.total-price strong {
+  font-size: 1.5rem;
+  color: #059669;
+  font-weight: bold;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+}
+
+.btn-cancel {
+  padding: 1rem 2rem;
+  background: white;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.btn-submit {
+  padding: 1rem 2rem;
+  background: linear-gradient(to right, #059669, #047857);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+background: linear-gradient(to right, #57bbc5, #57cbd3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+}
+
+.btn-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-submit::before {
+  content: "📤";
+  font-size: 1.25rem;
+}
+
+
+
+
+
+
+
+
+
+  /* ===== THEME  (Login consistency) ===== */
+
+.create-transaction-page {
+  background: linear-gradient(
+      135deg,
+      rgba(32, 180, 194, 0.08),
+      rgba(7, 144, 158, 0.05)
+    );
+  padding: 30px;
+}
+
+/* HEADER */
+.page-header h1 {
+  color: rgb(7, 144, 158);
+}
+
+.btn-back {
+  background: transparent;
+  color: rgb(32, 180, 194);
+  border: 2px solid rgb(32, 180, 194);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: rgb(32, 180, 194);
+  color: white;
+}
+
+/* CARD / SECTION */
+.form-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(32, 180, 194, 0.15);
+}
+
+/* TITLES */
+.form-section h2 {
+  color: rgb(32, 180, 194);
+}
+
+/* LABELS */
+.form-group label {
+  color: rgb(32, 180, 194);
+  font-weight: 600;
+}
+
+/* INPUTS */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  padding: 12px 14px;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: rgb(32, 180, 194);
+  box-shadow: 0 0 0 3px rgba(32, 180, 194, 0.2);
+}
+
+/* BUTTONS */
+.btn-submit {
+  background: linear-gradient(
+    135deg,
+    rgb(32, 180, 194),
+    rgb(7, 144, 158)
+  );
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(32, 180, 194, 0.35);
+}
+
+.btn-cancel {
+  background: #e9f6f8;
+  color: rgb(7, 144, 158);
+  font-weight: 600;
+}
+
+.btn-cancel:hover {
+  background: rgba(32, 180, 194, 0.2);
+}
+
+/* MESSAGES */
+.message-success {
+  background: rgba(32, 180, 194, 0.1);
+  border: 1px solid rgba(32, 180, 194, 0.3);
+  color: rgb(7, 144, 158);
+}
+
+.message-error {
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  color: #721c24;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-transaction-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-back {
+    position: static;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-lines-table {
+    font-size: 0.875rem;
+  }
+
+  .transaction-lines-table th,
+  .transaction-lines-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .transaction-summary {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+
+
+
+}
+
+
+
+/* ===== HEADER FORM SECTION - THEME LOGIN ===== */
+
+.create-transaction-page .form-section h2 {
+  background: linear-gradient(
+    135deg,
+    rgb(32, 180, 194),
+    rgb(7, 144, 158)
+  );
+  color: #ffffff;
+}
+
+
+
+/* ===== BUTTON ANNULER - DANGER STYLE ===== */
+
+.create-transaction-page .btn-cancel {
+  padding: 1rem 2rem;               /* même hauteur que submit */
+  background: linear-gradient(
+    135deg,
+    #ef4444,                        /* rouge vif */
+    #dc2626
+  );
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.create-transaction-page .btn-cancel:hover {
+  background: linear-gradient(
+    135deg,
+    #dc2626,
+    #b91c1c
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+}
+
+.create-transaction-page .btn-cancel:active {
+  transform: translateY(0);
+}
+
+.create-transaction-page .btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* ===== ALIGN BUTTONS HEIGHT (CANCEL = SUBMIT) ===== */
+
+.create-transaction-page .form-actions {
+  align-items: stretch;
+  
+}
+
+.create-transaction-page .btn-submit,
+.create-transaction-page .btn-cancel {
+  height: 52px;                 /* hauteur identique forcée */
+  padding: 0 2rem;              /* padding horizontal seulement */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+/* ===== FORM ACTIONS ALIGNMENT FIX ===== */
+
+.create-transaction-page .form-actions {
+  display: grid;
+  grid-template-columns: 200px 1fr; /* Annuler | Valider */
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.create-transaction-page .btn-cancel,
+.create-transaction-page .btn-submit {
+  height: 52px;
+  width: 100%;
+}
+/* =====================================================
+   FINAL FIX — ALIGNEMENT ANNULER / VALIDER
+   ===================================================== */
+
+.create-transaction-page .form-actions {
+  display: grid;
+  grid-template-columns: 220px 1fr; /* Annuler | Valider */
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  align-items: center;
+}
+
+/* BASE COMMUNE */
+.create-transaction-page .btn-submit,
+.create-transaction-page .btn-cancel {
+  height: 52px;
+  width: 100%;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 12px;
+}
+
+/* SUBMIT */
+.create-transaction-page .btn-submit {
+  background: linear-gradient(
+    135deg,
+    rgb(32, 180, 194),
+    rgb(7, 144, 158)
+  );
+  color: #fff;
+  border: none;
+}
+
+/* CANCEL — ROUGE */
+.create-transaction-page .btn-cancel {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+}
+
+/* HOVER */
+.create-transaction-page .btn-submit:hover,
+.create-transaction-page .btn-cancel:hover {
+  transform: translateY(-2px);
+}

@@ -1,92 +1,50 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate ,Link} from "react-router-dom";
 import ApiService from "../service/ApiService";
 
-const LoginPage = () => {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const backgroundImageUrl = '/images/gestionstock_BG.webp'; // même BG que register
-
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    setError("");
+
     try {
-      const loginData = { email, password };
-      const res = await ApiService.loginUser(loginData);
-
-      if (res.status === 200) {
-        ApiService.saveToken(res.token)
-        ApiService.saveRole(res.role)
-        setMessage({ text: res.message, type: "success" });
-        // Redirection selon le rôle
-        setTimeout(() => {
-          switch(res.role) {
-            case 'MANAGER':
-              navigate('/transactions');
-              break;
-            case 'ADMIN':
-              navigate('/partners');
-              break;
-            case 'SUPER_ADMIN':
-              navigate('/super-admin/dashboard');
-              break;
-            default:
-              navigate('/');
-          }
-        }, 1000);
-      }
-    } catch (error) {
-      showMessage(error.response?.data?.message || "Erreur login: " + error.message);
-      console.log(error);
+      const response = await ApiService.forgotPassword(email);
+      setMessage(response.message || "Lien de réinitialisation envoyé !");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Erreur lors de la demande de mot de passe oublié.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const showMessage = (msg, type = "error") => {
-    setMessage({ text: msg, type });
-    setTimeout(() => setMessage(""), 4000);
   };
 
   return (
     <div className="register-container">
       <div className="register-content">
-        {/* Section gauche - Bienvenue */}
         <div className="welcome-section">
           <div className="welcome-content">
-            <h1 className="welcome-title">Bienvenue</h1>
-            <h2 className="welcome-subtitle">chez Inventory !</h2>
+            <h1 className="welcome-title">Mot de passe oublié</h1>
+            <h2 className="welcome-subtitle">Ne vous inquiétez pas !</h2>
             <p className="welcome-description">
-              Connectez-vous pour accéder à notre plateforme 
-              de gestion centralisée. Gérez vos demandes et suivez vos opérations 
-              en toute simplicité.
+              Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
             </p>
-            <div className="ocp-logo">
-              <div className="logo-icon">
-                <Link className="navbar-brand d-flex align-items-center" to="/">
-                  <img 
-                    src="/images/stock_logo-removebg-preview.png"
-                    alt="Logo OCP" 
-                    style={{ height: '200px', width: 'auto', transition: 'opacity 0.3s ease' }} 
-                  />
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Section droite - Formulaire */}
         <div className="form-section">
           <div className="form-container">
-            <h3 className="form-title">Connexion</h3>
+            {message && <div className="message success-message">{message}</div>}
+            {error && <div className="message error-message">{error}</div>}
 
-            {message && (
-              <div className={`message ${message.type === 'success' ? 'success-message' : 'error-message'}`}>
-                {message.text}
-              </div>
-            )}
-
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Email</label>
                 <input
@@ -99,38 +57,21 @@ const LoginPage = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Mot de passe</label>
-                <input
-                  type="password"
-                  className="form-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-
-                 <p className="info-text">
-                Mot de pass oublié ?{' '}
-                <Link to="/forgot-password" className="terms-link">Mot de passe oublié</Link>
-              </p>
-              </div>
-
-              <button type="submit" className="submit-btn">Se connecter</button>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Envoi..." : "Envoyer le lien"}
+              </button>
             </form>
 
+            
+
             <div className="form-footer">
-              <p className="info-text">
-                Vous n'avez pas de compte?{' '}
-                <Link to="/register" className="terms-link">S'inscrire</Link>
-              </p>
-             
+                                  <Link to="/login" className="terms-link">Retour à la connexion</Link>
+                                  
             </div>
           </div>
         </div>
       </div>
 
-      {/* Copier le même CSS que RegisterPage */}
       <style>{`
        /* Conteneur principal */
 .register-container {
@@ -257,4 +198,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ForgotPasswordPage;

@@ -1,144 +1,221 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../component/Layout";
 import ApiService from "../service/ApiService";
-import { useNavigate, useParams } from "react-router-dom";
-
-
-
+import "../styles/TransactionDetailsPages.css";
 
 const TransactionDetailsPage = () => {
-  const { transactionId } = useParams();
-  const [transaction, setTransaction] = useState(null);
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("");
-
+  const { id } = useParams();
   const navigate = useNavigate();
 
+  const [transaction, setTransaction] = useState(null);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
 
   useEffect(() => {
-    const getTransaction = async () => {
-      try {
-        const transactionData = await ApiService.getTransactionById(transactionId);
+    fetchTransactionDetails();
+  }, []);
 
-        if (transactionData.status === 200) {
-            setTransaction(transactionData.transaction);
-            setStatus(transactionData.transaction.status);
-        }
-      } catch (error) {
-        showMessage(
-          error.response?.data?.message || "Error Getting a transaction: " + error
-        );
-      }
-    };
-
-    getTransaction();
-  }, [transactionId]);
-
-
-//update transaction status
-const handleUpdateStatus = async()=>{
+  const fetchTransactionDetails = async () => {
     try {
-        ApiService.updateTransactionStatus(transactionId, status);
-        navigate("/transaction")
+      const response = await ApiService.getTransactionById(id);
+
+      if (response.status === 200) {
+        setTransaction(response.transaction);
+        setNewStatus(response.transaction.status);
+      }
     } catch (error) {
-        showMessage(
-          error.response?.data?.message || "Error Updating a transactions: " + error
-        );
-        
+      setMessage(
+        error.response?.data?.message ||
+        "Erreur lors du chargement de la transaction"
+      );
     }
-}
-
-
-  //Method to show message or errors
-  const showMessage = (msg) => {
-    setMessage(msg);
-    setTimeout(() => {
-      setMessage("");
-    }, 4000);
   };
 
+  const handleUpdateStatus = async () => {
+    if (!newStatus || newStatus === transaction.status) return;
 
+    setLoading(true);
+    try {
+      const response = await ApiService.updateTransactionStatus(id, newStatus);
 
-  return(
-    <Layout>
+      if (response.status === 200) {
+        setMessage("Status mis à jour avec succès");
+
+        // Recharger la transaction depuis le backend
+        await fetchTransactionDetails();
         
-      {message && <p className="message">{message}</p>}
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage(""), 3000);
+      }
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Erreur lors de la mise à jour du status"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function for status badge
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      PENDING: { bg: "#fef3c7", color: "#92400e", text: "En attente" },
+      PROCESSING: { bg: "#dbeafe", color: "#1e40af", text: "En cours" },
+      COMPLETED: { bg: "#d1fae5", color: "#065f46", text: "Terminé" },
+      CANCELLED: { bg: "#fee2e2", color: "#991b1b", text: "Annulé" }
+    };
+
+    const config = statusConfig[status] || statusConfig.PENDING;
+    
+    return (
+      <span style={{
+        backgroundColor: config.bg,
+        color: config.color,
+        padding: "0.25rem 0.75rem",
+        borderRadius: "9999px",
+        fontSize: "0.75rem",
+        fontWeight: "700",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em"
+      }}>
+        {config.text}
+      </span>
+    );
+  };
+
+  // Helper function for transaction type badge
+  const getTransactionTypeBadge = (type) => {
+    const typeConfig = {
+      PURCHASE: { icon: "🛒", text: "Achat", color: "#059669" },
+      SALE: { icon: "💰", text: "Vente", color: "#2563eb" },
+      RETURN_TO_SUPPLIER: { icon: "↩️", text: "Retour", color: "#dc2626" }
+    };
+
+    const config = typeConfig[type] || typeConfig.PURCHASE;
+    
+    return (
+      <span style={{ color: config.color, fontWeight: "600" }}>
+        {config.icon} {config.text}
+      </span>
+    );
+  };
+
+  if (!transaction) {
+    return (
+      <Layout>
+        <div className="transaction-details-page">
+          <p>Chargement des détails de la transaction...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
       <div className="transaction-details-page">
-        {transaction && (
-           <>
-           {/* Transaction base information */}
-           <div className="section-card">
-                <h2>Transaction Information</h2>
-                <p>Type: {transaction.transactionType}</p>
-                <p>Status: {transaction.status}</p>
-                <p>Description: {transaction.description}</p>
-                <p>Note: {transaction.note}</p>
-                <p>Total Products: {transaction.totalProducts}</p>
-                <p>Total Price: {transaction.totalPrice.toFixed(2)}</p>
-                <p>Create AT: {new Date(transaction.createdAt).toLocaleString()}</p>
 
-                {transaction.updatedAt && (
-                <p>Updated At: {new Date(transaction.updatedAt).toLocaleString()}</p>
-                )}
-           </div>
+        <button onClick={() => navigate("/transactions")}>
+          ← Retour aux transactions
+        </button>
 
-           {/* Product information of the transaction */}
-           <div className="section-card">
-                <h2>Product Information</h2>
-                <p>Name: {transaction.product.name}</p>
-                <p>SKU: {transaction.product.sku}</p>
-                <p>Price: {transaction.product.price.toFixed(2)}</p>
-                <p>Stock Quantity: {transaction.product.stockQuantity}</p>
-                <p>Description: {transaction.product.description}</p>
+        <h1>Détails Transaction #{transaction.id}</h1>
 
-                {transaction.product.imageUrl && (
-                <img src={transaction.product.imageUrl} alt={transaction.product.name} />
-                )}
-                
-           </div>
+        {message && <p className="message">{message}</p>}
 
-           {/* User information who made the transaction */}
-           <div className="section-card">
-                <h2>User Information</h2>
-                <p>Name: {transaction.user.name}</p>
-                <p>Email: {transaction.user.email}</p>
-                <p>Phone Number: {transaction.user.phoneNumber}</p>
-                <p>Role: {transaction.user.role}</p>
-                <p>Create AT: {new Date(transaction.createdAt).toLocaleString()}</p>
-                
-           </div>
+        {/* Infos générales */}
+        <div className="details-card">
+          <p>
+            <strong>Type :</strong> 
+            {getTransactionTypeBadge(transaction.transactionType)}
+          </p>
+          <p>
+            <strong>Status :</strong> 
+            {getStatusBadge(transaction.status)}
+          </p>
+          <p>
+            <strong>Partenaire :</strong> 
+            <span>{transaction.partnerName || "Aucun partenaire"}</span>
+          </p>
+          <p>
+            <strong>Description :</strong> 
+            <span>{transaction.description || "N/A"}</span>
+          </p>
+          <p>
+            <strong>Note :</strong> 
+            <span>{transaction.note || "N/A"}</span>
+          </p>
+          <p>
+            <strong>Total :</strong> 
+            <span style={{ fontSize: "1.25rem", fontWeight: "700", color: "#059669" }}>
+              {transaction.totalPrice?.toFixed(2)} DH
+            </span>
+          </p>
+          <p>
+            <strong>Date de création :</strong> 
+            <span>{new Date(transaction.createdAt).toLocaleString("fr-FR", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}</span>
+          </p>
+        </div>
 
+        {/* Modifier status */}
+        <div className="status-update">
+          <h3>Modifier le statut</h3>
 
+          <select
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value)}
+          >
+            <option value="PENDING">En attente (PENDING)</option>
+            <option value="PROCESSING">En cours (PROCESSING)</option>
+            <option value="COMPLETED">Terminé (COMPLETED)</option>
+            <option value="CANCELLED">Annulé (CANCELLED)</option>
+          </select>
 
-           {/* Supplier information who made the transaction */}
-           {transaction.suppliers && (
-           <div className="section-card">
-                <h2>Supplier Information</h2>
-                <p>Name: {transaction.supplier.name}</p>
-                <p>Contact Address: {transaction.supplier.contactInfo}</p>
-                <p>Address: {transaction.supplier.address}</p> 
-           </div>
-           )}
+          <button
+            onClick={handleUpdateStatus}
+            disabled={loading || newStatus === transaction.status}
+          >
+            {loading ? "Mise à jour en cours..." : "Mettre à jour le statut"}
+          </button>
+        </div>
 
-           {/* UPDATE TRANSACTION STATUS */}
-           <div className="section-card transaction-staus-update">
-            <label>Status: </label>
-            <select 
-            value={status}
-            onChange={(e)=> setStatus(e.target.value)}
-            >
-                <option value="PENDING">PENDING</option>
-                <option value="PROCESSING">PROCESSING</option>
-                <option value="COMPLETED">COMPLETED</option>
-                <option value="CANCELLED">CANCELLED</option>
-            </select>
-            <button onClick={()=>handleUpdateStatus()}>Update Staus</button>
-           </div>
-           </>
-        )}
+        {/* Lignes de transaction */}
+        <h2>Lignes de Transaction ({transaction.details?.length || 0})</h2>
+
+        <table className="transaction-lines-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>SKU</th>
+              <th>Quantité</th>
+              <th>Prix Unitaire</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transaction.details?.map((line) => (
+              <tr key={line.id}>
+                <td data-label="Produit">{line.productName}</td>
+                <td data-label="SKU">{line.productSku}</td>
+                <td data-label="Quantité">{line.quantity}</td>
+                <td data-label="Prix Unitaire">{line.unitPrice.toFixed(2)} DH</td>
+                <td data-label="Total">{line.lineTotal.toFixed(2)} DH</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
       </div>
     </Layout>
-  )
+  );
 };
 
 export default TransactionDetailsPage;
