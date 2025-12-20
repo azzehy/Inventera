@@ -157,8 +157,8 @@ const CategoryPage = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Categories</h1>
-              <p className="text-gray-600 text-sm">Manage your product categories</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Catégories</h1>
+              <p className="text-gray-600 text-sm">Gérez vos catégories de produits</p>
             </div>
           </div>
         </div>
@@ -166,13 +166,13 @@ const CategoryPage = () => {
         {/* Add/Edit Category Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">
-            {isEditing ? "Edit Category" : "Add New Category"}
+            {isEditing ? "Modifier la catégorie" : "Ajouter une nouvelle catégorie"}
           </h2>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               value={categoryName}
               type="text"
-              placeholder="Enter category name"
+              placeholder="Saisissez le nom de la catégorie"
               onChange={(e) => setCategoryName(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && (isEditing ? editCategory() : addCategory())}
               className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 transition-colors"
@@ -184,7 +184,7 @@ const CategoryPage = () => {
                 className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg"
               >
                 <Plus size={20} />
-                Add Category
+                Ajouter une catégorie
               </button>
             ) : (
               <>
@@ -193,14 +193,14 @@ const CategoryPage = () => {
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg"
                 >
                   <Save size={20} />
-                  Update
+                  Mise à jour
                 </button>
                 <button 
                   onClick={handleCancelEdit}
                   className="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                 >
                   <X size={20} />
-                  Cancel
+                  Annuler
                 </button>
               </>
             )}
@@ -214,7 +214,7 @@ const CategoryPage = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Search categories..."
+                placeholder="Chercher des catégories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 transition-colors"
@@ -227,7 +227,7 @@ const CategoryPage = () => {
         {isLoading ? (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 flex flex-col items-center justify-center">
             <Loader size={40} className="text-teal-600 animate-spin mb-4" />
-            <p className="text-gray-600">Loading categories...</p>
+            <p className="text-gray-600">Chargement des catégories...</p>
           </div>
         ) : filteredCategories && filteredCategories.length > 0 ? (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -235,7 +235,7 @@ const CategoryPage = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Category Name</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Nom de la catégorie</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -258,7 +258,7 @@ const CategoryPage = () => {
                             title="Edit Category"
                           >
                             <Edit2 size={16} />
-                            Edit
+                            Modifier
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(category.id)}
@@ -266,7 +266,7 @@ const CategoryPage = () => {
                             title="Delete Category"
                           >
                             <Trash2 size={16} />
-                            Delete
+                            Supprimer
                           </button>
                         </div>
                       </td>
@@ -281,7 +281,7 @@ const CategoryPage = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Folder size={32} className="text-gray-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No categories found</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Aucune catégorie trouvée</h2>
             <p className="text-gray-600">
               {searchTerm 
                 ? "Try adjusting your search term" 
@@ -300,7 +300,7 @@ const CategoryPage = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
-                  <p className="text-sm text-gray-600">Total Categories</p>
+                  <p className="text-sm text-gray-600">Total des catégories</p>
                 </div>
               </div>
             </div>

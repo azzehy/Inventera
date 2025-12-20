@@ -113,13 +113,13 @@ const Sidebar = () => {
     { name: "Catégorie", path: "/category", icon: <LucideIcons.Folder size={20} />, auth: isAdmin },
     { name: "Produits", path: "/product", icon: <LucideIcons.Box size={20} />, auth: isAdminOrManager },
     { name: "Mon entreprise", path: "/my-entreprise", icon: <LucideIcons.Building size={20} />, auth: isAdmin },
-    { name: "Gestion des utilisateurst", path: "/UserManagementPage", icon: <LucideIcons.Users size={20} />, auth: isAdmin },
+    { name: "Gestion des utilisateurs", path: "/UserManagementPage", icon: <LucideIcons.Users size={20} />, auth: isAdmin },
     { name: "Profil", path: "/profile", icon: <LucideIcons.User size={20} />, auth: isAuth },
     { name: "Tarification", path: "/pricing", icon: <LucideIcons.DollarSign size={20} />, auth: isAdmin },
     { name: "Abonnement", path: "/mySubscription", icon: <LucideIcons.CreditCard size={20} />, auth: isAdmin },
     { name: "Partenaire ", path: "/partners", icon: <LucideIcons.Handshake  size={20} />, auth: isAdmin },
 
-    { name: "Logout", path: "/login", icon: <LucideIcons.LogOut size={20} />, auth: isAuth, action: logout },
+    { name: "Déconnexion", path: "/login", icon: <LucideIcons.LogOut size={20} />, auth: isAuth, action: logout },
   ];
 
   return (
