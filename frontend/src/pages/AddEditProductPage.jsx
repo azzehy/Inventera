@@ -17,7 +17,6 @@ const AddEditProductPage = () => {
     categoryId: "",
     enterpriseId: "",
     description: "",
-    expiryDate: ""
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -62,7 +61,6 @@ const AddEditProductPage = () => {
               categoryId: product.categoryId || "",
               enterpriseId: product.enterpriseId || "",
               description: product.description || "",
-              expiryDate: product.expiryDate ? formatDateTimeLocal(product.expiryDate) : ""
             });
             setImagePreview(product.imageUrl || "");
           } else {
@@ -81,17 +79,7 @@ const AddEditProductPage = () => {
     fetchInitialData();
   }, [productId]);
 
-  // Format datetime for datetime-local input
-  const formatDateTimeLocal = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
+
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -184,9 +172,6 @@ const AddEditProductPage = () => {
     submitData.append("description", formData.description.trim());
     submitData.append("stockMinimum", formData.stockMinimum || "0");
     
-    if (formData.expiryDate) {
-      submitData.append("expiryDate", formData.expiryDate);
-    }
     
     if (imageFile) {
       submitData.append("imageFile", imageFile);
@@ -345,17 +330,7 @@ const AddEditProductPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="expiryDate">Expiry Date</label>
-            <input
-              id="expiryDate"
-              name="expiryDate"
-              type="datetime-local"
-              value={formData.expiryDate}
-              onChange={handleInputChange}
-              disabled={isLoading}
-            />
-          </div>
+
 
           <div className="form-group">
             <label htmlFor="imageFile">Product Image</label>
