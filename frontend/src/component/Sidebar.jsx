@@ -115,9 +115,8 @@ const Sidebar = () => {
     { name: "My Enterprise", path: "/my-entreprise", icon: <LucideIcons.Building size={20} />, auth: isAdmin },
     { name: "User Management", path: "/UserManagementPage", icon: <LucideIcons.Users size={20} />, auth: isAdmin },
     { name: "Profile", path: "/profile", icon: <LucideIcons.User size={20} />, auth: isAuth },
-        { name: "Pricing", path: "/pricing", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
-    { name: "Subscribtion", path: "/mySubscription", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
-
+    { name: "Pricing", path: "/pricing", icon: <LucideIcons.DollarSign size={20} />, auth: isAdminOrManager },
+    { name: "Subscribtion", path: "/mySubscription", icon: <LucideIcons.CreditCard size={20} />, auth: isAdminOrManager },
 
     { name: "Logout", path: "/login", icon: <LucideIcons.LogOut size={20} />, auth: isAuth, action: logout },
   ];
