@@ -1092,6 +1092,7 @@ const handleViewDetails = (enterpriseId) => {
           display: flex;
           gap: 12px;
           margin-top: 24px;
+            align-items: center; /* Alignement vertical */
         }
 
         .btn-cancel {
