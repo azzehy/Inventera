@@ -220,11 +220,11 @@ const AddEditProductPage = () => {
       {message && <div className="message">{message}</div>}
 
       <div className="product-form-page">
-        <h1>{isEditing ? "Edit Product" : "Add Product"}</h1>
+        <h1>{isEditing ? "Modifier le produit" : "Ajouter un produit"}</h1>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Product Name *</label>
+            <label htmlFor="name">Nom du produit *</label>
             <input
               id="name"
               name="name"
@@ -253,7 +253,7 @@ const AddEditProductPage = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="quantity">Quantity *</label>
+              <label htmlFor="quantity">Quantité *</label>
               <input
                 id="quantity"
                 name="quantity"
@@ -283,7 +283,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="price">Price *</label>
+            <label htmlFor="price">Prix *</label>
             <input
               id="price"
               name="price"
@@ -299,7 +299,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="categoryId">Category *</label>
+            <label htmlFor="categoryId">Catégorie *</label>
             <select
               id="categoryId"
               name="categoryId"
@@ -308,7 +308,7 @@ const AddEditProductPage = () => {
               required
               disabled={isLoading}
             >
-              <option value="">Select a category</option>
+              <option value="">Sélectionnez une catégorie</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -333,7 +333,7 @@ const AddEditProductPage = () => {
 
 
           <div className="form-group">
-            <label htmlFor="imageFile">Product Image</label>
+            <label htmlFor="imageFile">Image du produit</label>
             <input
               id="imageFile"
               type="file"
@@ -341,7 +341,7 @@ const AddEditProductPage = () => {
               accept="image/*"
               disabled={isLoading}
             />
-            <small>Maximum file size: 5MB. Accepted formats: JPG, PNG, GIF, WEBP</small>
+            <small>Taille maximale du fichier : 5MB. Formats acceptés: JPG, PNG, GIF, WEBP</small>
             
             {imagePreview && (
               <div className="image-preview-container">
@@ -359,12 +359,19 @@ const AddEditProductPage = () => {
               type="submit" 
               className="btn-primary"
               disabled={isLoading}
+               style={{
+      flex: 1,
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
             >
               {isLoading 
                 ? "Processing..." 
                 : isEditing 
-                  ? "Update Product" 
-                  : "Add Product"
+                  ? "Mise à jour" 
+                  : "Ajouter"
               }
             </button>
             
@@ -373,8 +380,15 @@ const AddEditProductPage = () => {
               className="btn-secondary"
               onClick={handleCancel}
               disabled={isLoading}
+               style={{
+      flex: 1,
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
             >
-              Cancel
+              Annuler
             </button>
           </div>
         </form>
