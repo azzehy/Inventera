@@ -1,0 +1,398 @@
+/* TransactionDetailsPage.css */
+
+.transaction-details-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Back Button */
+.transaction-details-page > button:first-of-type {
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0.75rem;
+  color: #4b5563;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transaction-details-page > button:first-of-type:hover {
+  background: #e5e7eb;
+  transform: translateX(-4px);
+}
+
+/* Page Title */
+.transaction-details-page h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #059669;
+}
+
+.transaction-details-page h1::before {
+  content: "📊";
+  margin-right: 0.75rem;
+  font-size: 2rem;
+}
+
+/* Message Alert */
+.transaction-details-page .message {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid #059669;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+.transaction-details-page .message::before {
+  content: "✓";
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Details Card - Main Info */
+.details-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f3f4f6;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.details-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, #059669, #047857);
+}
+
+.details-card p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #4b5563;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.details-card p:last-child {
+  border-bottom: none;
+}
+
+.details-card p:hover {
+  background: #f9fafb;
+}
+
+.details-card strong {
+  color: #1f2937;
+  font-weight: 600;
+  min-width: 150px;
+}
+
+.details-card strong::after {
+  content: "";
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+/* Status Update Section */
+.status-update {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f3f4f6;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.status-update h3 {
+  background: linear-gradient(to right, #059669, #047857);
+  color: white;
+  padding: 0.75rem 1rem;
+  margin: -1.5rem -1.5rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-update h3::before {
+  content: "🔄";
+  font-size: 1.25rem;
+}
+
+.status-update select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.status-update select:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.status-update button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(to right, #059669, #047857);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.status-update button::before {
+  content: "✓";
+  font-size: 1.25rem;
+}
+
+.status-update button:hover:not(:disabled) {
+  background: linear-gradient(to right, #047857, #065f46);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+}
+
+.status-update button:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+/* Section Title for Transaction Lines */
+.transaction-details-page h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transaction-details-page h2::before {
+  content: "📋";
+  font-size: 1.5rem;
+}
+
+/* Transaction Lines Table */
+.transaction-details-page .transaction-lines-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.transaction-details-page .transaction-lines-table thead {
+  background: linear-gradient(to right, #f9fafb, #f3f4f6);
+}
+
+.transaction-details-page .transaction-lines-table th {
+  padding: 1.25rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.transaction-details-page .transaction-lines-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s;
+}
+
+.transaction-details-page .transaction-lines-table tbody tr:hover {
+  background: #f9fafb;
+  transform: scale(1.01);
+}
+
+.transaction-details-page .transaction-lines-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.transaction-details-page .transaction-lines-table td {
+  padding: 1.25rem 1rem;
+  color: #4b5563;
+  font-size: 0.9375rem;
+}
+
+.transaction-details-page .transaction-lines-table td:nth-child(4),
+.transaction-details-page .transaction-lines-table td:nth-child(5) {
+  font-weight: 600;
+  color: #059669;
+}
+
+/* Loading State */
+.transaction-details-page p:first-of-type {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+/* Status Badges in Details Card */
+.details-card p:nth-child(2) {
+  font-weight: 600;
+}
+
+.details-card p:nth-child(2)::after {
+  content: "";
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+}
+
+/* Status Badge Colors - À ajouter via JavaScript ou inline styles */
+/* Ces styles peuvent être appliqués dynamiquement selon le status */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .transaction-details-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .transaction-details-page h1 {
+    font-size: 1.5rem;
+  }
+
+  .details-card {
+    padding: 1rem;
+  }
+
+  .details-card p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
+
+  .details-card strong {
+    min-width: auto;
+  }
+
+  .transaction-details-page .transaction-lines-table {
+    font-size: 0.875rem;
+  }
+
+  .transaction-details-page .transaction-lines-table th,
+  .transaction-details-page .transaction-lines-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Stack table on mobile */
+  .transaction-details-page .transaction-lines-table thead {
+    display: none;
+  }
+
+  .transaction-details-page .transaction-lines-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+
+  .transaction-details-page .transaction-lines-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .transaction-details-page .transaction-lines-table td:last-child {
+    border-bottom: none;
+  }
+
+  .transaction-details-page .transaction-lines-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Additional Enhancement: Print Styles */
+@media print {
+  .transaction-details-page > button,
+  .status-update {
+    display: none;
+  }
+
+  .transaction-details-page {
+    max-width: 100%;
+  }
+}
