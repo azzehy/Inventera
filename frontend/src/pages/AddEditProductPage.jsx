@@ -4,64 +4,132 @@ import ApiService from "../service/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 
 const AddEditProductPage = () => {
-  const { productId } = useParams("");
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [price, setPrice] = useState("");
-  const [stockQuantity, setStokeQuantity] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [message, setMessage] = useState("");
-
+  const { productId } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categoriesData = await ApiService.getAllCategory();
-        setCategories(categoriesData.categories);
-      } catch (error) {
-        showMessage(
-          error.response?.data?.message ||
-            "Error Getting all Categories: " + error
-        );
-      }
-    };
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    sku: "",
+    price: "",
+    quantity: "",
+    stockMinimum: "0",
+    categoryId: "",
+    enterpriseId: "",
+    description: "",
+    expiryDate: ""
+  });
 
-    const fetProductById = async () => {
-      if (productId) {
-        setIsEditing(true);
-        try {
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch user info to get enterpriseId
+        const userInfo = await ApiService.getLoggedInUsesInfo();
+        if (userInfo.status === 200) {
+          setFormData(prev => ({
+            ...prev,
+            enterpriseId: userInfo.user.enterpriseId
+          }));
+        }
+
+        // ✅ FIX: Use getMyEnterpriseCategories instead of getAllCategory
+        const categoriesData = await ApiService.getMyEnterpriseCategories();
+        if (categoriesData.status === 200) {
+          setCategories(categoriesData.categories || []);
+        }
+
+        // If editing, fetch product data
+        if (productId) {
+          setIsEditing(true);
           const productData = await ApiService.getProductById(productId);
           if (productData.status === 200) {
-            setName(productData.product.name);
-            setSku(productData.product.sku);
-            setPrice(productData.product.price);
-            setStokeQuantity(productData.product.stockQuantity);
-            setCategoryId(productData.product.categoryId);
-            setDescription(productData.product.description);
-            setImageUrl(productData.product.imageUrl);
+            const product = productData.product;
+            setFormData({
+              name: product.name || "",
+              sku: product.sku || "",
+              price: product.price || "",
+              quantity: product.quantity || "",
+              stockMinimum: product.stockMinimum || "0",
+              categoryId: product.categoryId || "",
+              enterpriseId: product.enterpriseId || "",
+              description: product.description || "",
+              expiryDate: product.expiryDate ? formatDateTimeLocal(product.expiryDate) : ""
+            });
+            setImagePreview(product.imageUrl || "");
           } else {
-            showMessage(productData.message);
+            showMessage(productData.message || "Error loading product");
           }
-        } catch (error) {
-          showMessage(
-            error.response?.data?.message ||
-              "Error Getting a Product by Id: " + error
-          );
         }
+      } catch (error) {
+        showMessage(
+          error.response?.data?.message || "Error loading data: " + error.message
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchCategories();
-    if (productId) fetProductById();
+    fetchInitialData();
   }, [productId]);
 
-  //metjhod to show message or errors
+  // Format datetime for datetime-local input
+  const formatDateTimeLocal = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle image selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showMessage("Please select a valid image file");
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage("Image size should be less than 5MB");
+        return;
+      }
+
+      setImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Show message
   const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => {
@@ -69,43 +137,98 @@ const AddEditProductPage = () => {
     }, 4000);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setImageUrl(reader.result); //user imagurl to preview the image to upload
-    reader.readAsDataURL(file);
+  // Validate form
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      showMessage("Product name is required");
+      return false;
+    }
+    if (!formData.sku.trim()) {
+      showMessage("SKU is required");
+      return false;
+    }
+    if (!formData.price || parseFloat(formData.price) < 0) {
+      showMessage("Please enter a valid price");
+      return false;
+    }
+    if (!formData.quantity || parseInt(formData.quantity) < 0) {
+      showMessage("Please enter a valid quantity");
+      return false;
+    }
+    if (!formData.categoryId) {
+      showMessage("Please select a category");
+      return false;
+    }
+    if (!formData.enterpriseId) {
+      showMessage("Enterprise ID is missing. Please log in again.");
+      return false;
+    }
+    return true;
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("sku", sku);
-    formData.append("price", price);
-    formData.append("stockQuantity", stockQuantity);
-    formData.append("categoryId", categoryId);
-    formData.append("description", description);
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+
+    const submitData = new FormData();
+    submitData.append("name", formData.name.trim());
+    submitData.append("sku", formData.sku.trim());
+    submitData.append("price", formData.price);
+    submitData.append("quantity", formData.quantity);
+    submitData.append("categoryId", formData.categoryId);
+    submitData.append("enterpriseId", formData.enterpriseId);
+    submitData.append("description", formData.description.trim());
+    submitData.append("stockMinimum", formData.stockMinimum || "0");
+    
+    if (formData.expiryDate) {
+      submitData.append("expiryDate", formData.expiryDate);
+    }
+    
     if (imageFile) {
-      formData.append("imageFile", imageFile);
+      submitData.append("imageFile", imageFile);
     }
 
     try {
+      let response;
       if (isEditing) {
-        formData.append("productId", productId);
-        await ApiService.updateProduct(formData);
-        showMessage("Product successfully updated");
+        response = await ApiService.updateProduct(productId, submitData);
+        showMessage("Product successfully updated! 🎉");
       } else {
-        await ApiService.addProduct(formData);
-        showMessage("Product successfully Saved 🤩");
+        response = await ApiService.addProduct(submitData);
+        showMessage("Product successfully added! 🤩");
       }
-      navigate("/product");
+      
+      // Navigate after short delay to show message
+      setTimeout(() => {
+        navigate("/product");
+      }, 1500);
     } catch (error) {
-      showMessage(
-        error.response?.data?.message || "Error Saving a Product: " + error
-      );
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          "Error saving product";
+      showMessage(errorMessage);
+      setIsLoading(false);
     }
   };
+
+  // Handle cancel
+  const handleCancel = () => {
+    navigate("/product");
+  };
+
+  if (isLoading && !formData.enterpriseId) {
+    return (
+      <Layout>
+        <div className="loading-container">
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -113,66 +236,94 @@ const AddEditProductPage = () => {
 
       <div className="product-form-page">
         <h1>{isEditing ? "Edit Product" : "Add Product"}</h1>
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Product Name</label>
+            <label htmlFor="name">Product Name *</label>
             <input
+              id="name"
+              name="name"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter product name"
               required
+              disabled={isLoading}
             />
           </div>
 
           <div className="form-group">
-            <label>Sku</label>
+            <label htmlFor="sku">SKU *</label>
             <input
+              id="sku"
+              name="sku"
               type="text"
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
+              value={formData.sku}
+              onChange={handleInputChange}
+              placeholder="Enter SKU code"
               required
+              disabled={isLoading}
             />
           </div>
 
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="quantity">Quantity *</label>
+              <input
+                id="quantity"
+                name="quantity"
+                type="number"
+                value={formData.quantity}
+                onChange={handleInputChange}
+                placeholder="0"
+                required
+                min="0"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="stockMinimum">Stock Minimum</label>
+              <input
+                id="stockMinimum"
+                name="stockMinimum"
+                type="number"
+                value={formData.stockMinimum}
+                onChange={handleInputChange}
+                placeholder="0"
+                min="0"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <div className="form-group">
-            <label>Stock Quantity</label>
+            <label htmlFor="price">Price *</label>
             <input
+              id="price"
+              name="price"
               type="number"
-              value={stockQuantity}
-              onChange={(e) => setStokeQuantity(e.target.value)}
+              step="0.01"
+              value={formData.price}
+              onChange={handleInputChange}
+              placeholder="0.00"
               required
+              min="0"
+              disabled={isLoading}
             />
           </div>
 
           <div className="form-group">
-            <label>Price</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Description</label>
-
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Category</label>
-
+            <label htmlFor="categoryId">Category *</label>
             <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              id="categoryId"
+              name="categoryId"
+              value={formData.categoryId}
+              onChange={handleInputChange}
               required
+              disabled={isLoading}
             >
               <option value="">Select a category</option>
-
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -182,15 +333,75 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Product Image</label>
-            <input type="file" onChange={handleImageChange} />
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter product description"
+              rows="4"
+              disabled={isLoading}
+            />
+          </div>
 
-            {imageUrl && (
-              <img src={imageUrl} alt="preview" className="image-preview" />
+          <div className="form-group">
+            <label htmlFor="expiryDate">Expiry Date</label>
+            <input
+              id="expiryDate"
+              name="expiryDate"
+              type="datetime-local"
+              value={formData.expiryDate}
+              onChange={handleInputChange}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="imageFile">Product Image</label>
+            <input
+              id="imageFile"
+              type="file"
+              onChange={handleImageChange}
+              accept="image/*"
+              disabled={isLoading}
+            />
+            <small>Maximum file size: 5MB. Accepted formats: JPG, PNG, GIF, WEBP</small>
+            
+            {imagePreview && (
+              <div className="image-preview-container">
+                <img 
+                  src={imagePreview} 
+                  alt="Product preview" 
+                  className="image-preview" 
+                />
+              </div>
             )}
           </div>
-          <button type="submit">{isEditing ? "Edit Product" : "Add Product"}</button>
 
+          <div className="form-actions">
+            <button 
+              type="submit" 
+              className="btn-primary"
+              disabled={isLoading}
+            >
+              {isLoading 
+                ? "Processing..." 
+                : isEditing 
+                  ? "Update Product" 
+                  : "Add Product"
+              }
+            </button>
+            
+            <button 
+              type="button" 
+              className="btn-secondary"
+              onClick={handleCancel}
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </Layout>
