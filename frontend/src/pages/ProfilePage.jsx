@@ -186,7 +186,7 @@ const ProfilePage = () => {
                     className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:shadow-lg"
                   >
                     <Edit2 size={18} />
-                    Edit Profile
+                    Modifier le profil
                   </button>
                 )}
               </div>
@@ -195,7 +195,7 @@ const ProfilePage = () => {
             {/* Main Content */}
             {!isEditing ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile Information</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Informations de profil</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border border-gray-100">
@@ -213,7 +213,7 @@ const ProfilePage = () => {
                       <Phone size={22} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Phone Number</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Numéro de téléphone</p>
                       <p className="text-gray-900 font-semibold">{user.phoneNumber}</p>
                     </div>
                   </div>
@@ -223,7 +223,7 @@ const ProfilePage = () => {
                       <User size={22} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Full Name</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Nom et prénom</p>
                       <p className="text-gray-900 font-semibold">{user.name}</p>
                     </div>
                   </div>
@@ -233,7 +233,7 @@ const ProfilePage = () => {
                       <Building2 size={22} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Enterprise</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Entreprise</p>
                       <p className="text-gray-900 font-semibold">
                         {user.enterpriseName || "Not assigned"}
                       </p>
@@ -245,7 +245,7 @@ const ProfilePage = () => {
                       <Shield size={22} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Role</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Rôle</p>
                       <p className="text-gray-900 font-semibold">
                         {user.role?.replace("_", " ")}
                       </p>
@@ -257,7 +257,7 @@ const ProfilePage = () => {
                       <Calendar size={22} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Member Since</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Membre depuis</p>
                       <p className="text-gray-900 font-semibold">{formatDate(user.createdAt)}</p>
                     </div>
                   </div>
@@ -265,12 +265,12 @@ const ProfilePage = () => {
               </div>
             ) : (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Modifier le profil</h2>
                 
                 <div className="space-y-6 max-w-2xl">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Full Name *
+                      Nom complet *
                     </label>
                     <input
                       type="text"
@@ -300,7 +300,7 @@ const ProfilePage = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phone Number *
+                      Numéro de téléphone *
                     </label>
                     <input
                       type="tel"
@@ -316,13 +316,13 @@ const ProfilePage = () => {
                   <div className="pt-4 border-t border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <Lock size={20} />
-                      Change Password (Optional)
+                      Changer le mot de passe (Facultatif)
                     </h3>
                     
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          New Password
+                          Nouveau mot de passe
                         </label>
                         <input
                           type="password"
@@ -330,13 +330,13 @@ const ProfilePage = () => {
                           value={formData.password}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 transition-colors"
-                          placeholder="Enter new password"
+                          placeholder="Saisissez le nouveau mot de passe"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Confirm New Password
+                          Confirmer le nouveau mot de passe
                         </label>
                         <input
                           type="password"
@@ -344,7 +344,7 @@ const ProfilePage = () => {
                           value={formData.confirmPassword}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 transition-colors"
-                          placeholder="Confirm new password"
+                          placeholder="Confirmer le nouveau mot de passe"
                         />
                       </div>
                     </div>
@@ -356,7 +356,7 @@ const ProfilePage = () => {
                       className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                     >
                       <Save size={20} />
-                      Save Changes
+                      Enregistrer 
                     </button>
                     <button
                       onClick={() => {
@@ -372,7 +372,7 @@ const ProfilePage = () => {
                       className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                     >
                       <X size={20} />
-                      Cancel
+                      Annuler
                     </button>
                   </div>
                 </div>
