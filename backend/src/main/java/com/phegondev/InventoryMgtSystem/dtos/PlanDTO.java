@@ -10,4 +10,5 @@ public class PlanDTO {
     private BigDecimal priceMonthly;
     private Integer maxProducts;
     private Integer maxUsers;
+    private String stripePriceId;
 }

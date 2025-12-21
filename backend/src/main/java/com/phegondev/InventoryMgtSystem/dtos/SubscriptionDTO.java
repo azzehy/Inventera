@@ -12,5 +12,7 @@ public class SubscriptionDTO {
     private String status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private String stripeSubscriptionId;
+    private String stripeCustomerId;
     private Integer daysRemaining;
 }
