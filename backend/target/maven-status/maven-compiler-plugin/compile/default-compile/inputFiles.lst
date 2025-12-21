@@ -8,6 +8,7 @@ E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\In
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\EnterpriseController.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\PaymentController.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\ProductController.java
+E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\StripeWebhookController.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\TransactionController.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\controllers\UserController.java
 E:\Projets\projet jee\testMultiEntreprise\backend\src\main\java\com\phegondev\InventoryMgtSystem\dtos\BusinessPartnerDTO.java

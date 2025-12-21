@@ -37,4 +37,6 @@ cloudinary.api-key= hna api key
 cloudinary.api-secret= hna api secret
 
 # STRIPE CONFIGURATION
-stripe.api-key=sk_test_51SZG2X48YBq5H91tqSzwatZIOa17yFOZT17JIU9U1kGv2hUTam11iV6hjBpgoUt2OWIMrukf1hDZMt6KOiWPoeHw00LZiIFwVc
+# rir khdmo bhado nichan
+stripe.api.key=sk_test_51SZG2X48YBq5H91tqSzwatZIOa17yFOZT17JIU9U1kGv2hUTam11iV6hjBpgoUt2OWIMrukf1hDZMt6KOiWPoeHw00LZiIFwVc
+stripe.webhook.secret=whsec_6LM7dQzzJwjDPeMY0BppXWM3g3wjPiH4

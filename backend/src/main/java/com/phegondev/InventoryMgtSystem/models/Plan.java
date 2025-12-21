@@ -23,4 +23,6 @@ public class Plan {
     private Integer maxProducts;
     
     private Integer maxUsers;
+
+    private String stripePriceId;
 }
