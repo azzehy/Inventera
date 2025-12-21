@@ -39,19 +39,19 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
 
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/cancel" element={<PaymentCancel />} />
-        <Route path="/mySubscription" element={<SubscriptionPage />} />
+        <Route path="/pricing" element={<AdminRoute element={<PricingPage />}/>}/>
+        <Route path="/payment/success" element={<AdminRoute element={<PaymentSuccess />}/>}/>
+        <Route path="/payment/cancel" element={<AdminRoute element={<PaymentCancel />}/>}/>
+        <Route path="/mySubscription" element={<AdminRoute element={<SubscriptionPage />}/>}/>
 
 
         {/* ADMIN ROUTES */}
         <Route path="/category" element={<AdminRoute element={<CategoryPage/>}/>}/>
-        <Route path="/product" element={<AdminRoute element={<ProductPage/>}/>}/>
+        <Route path="/product" element={<ProtectedRoute element={<ProductPage/>}/>}/>
 
 
-        <Route path="/add-product" element={<AdminRoute element={<AddEditProductPage/>}/>}/>
-        <Route path="/edit-product/:productId" element={<AdminRoute element={<AddEditProductPage/>}/>}/>
+        <Route path="/add-product" element={<ProtectedRoute element={<AddEditProductPage/>}/>}/>
+        <Route path="/edit-product/:productId" element={<ProtectedRoute element={<AddEditProductPage/>}/>}/>
 
   
 

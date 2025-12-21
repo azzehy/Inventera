@@ -771,12 +771,7 @@ static async getMyEnterpriseStats() {
         return response.data;
     }
 
-    static async deleteTransaction(transactionId) {
-        const response = await axios.delete(`${this.BASE_URL}/transactions/delete/${transactionId}`, {
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
+
 
     // ✅ For SUPER_ADMIN only
     static async getAllTransactions(page = 0, size = 10, filter = "") {
@@ -787,44 +782,11 @@ static async getMyEnterpriseStats() {
         return response.data;
     }
 
-    static async getTransactionById(transactionId) {
-        const response = await axios.get(`${this.BASE_URL}/transactions/${transactionId}`, {
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
 
-    static async getTransactionsByMonthAndYear(month, year) {
-        const response = await axios.get(`${this.BASE_URL}/transactions/month/${month}/year/${year}`, {
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
 
-    static async updateTransactionStatus(transactionId, status) {
-        const response = await axios.put(`${this.BASE_URL}/transactions/${transactionId}/status`, null, {
-            params: { status },
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
 
-    static async getTransactionsByPartner(partnerId, page = 0, size = 10) {
-        const response = await axios.get(`${this.BASE_URL}/transactions/partner/${partnerId}`, {
-            params: { page, size },
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
 
-    // ✅ PRIMARY: Get MY enterprise transactions
-    static async getMyEnterpriseTransactions(page = 0, size = 10) {
-        const response = await axios.get(`${this.BASE_URL}/transactions/my-transactions`, {
-            params: { page, size },
-            headers: this.getHeader()
-        })
-        return response.data;
-    }
+
 
 
 

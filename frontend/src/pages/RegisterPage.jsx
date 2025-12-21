@@ -328,7 +328,7 @@ const RegisterPage = () => {
   flex: 1.2;
   padding: 40px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow-y: auto;
   max-height: 100vh;

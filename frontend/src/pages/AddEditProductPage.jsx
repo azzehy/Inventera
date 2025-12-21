@@ -17,7 +17,6 @@ const AddEditProductPage = () => {
     categoryId: "",
     enterpriseId: "",
     description: "",
-    expiryDate: ""
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -62,7 +61,6 @@ const AddEditProductPage = () => {
               categoryId: product.categoryId || "",
               enterpriseId: product.enterpriseId || "",
               description: product.description || "",
-              expiryDate: product.expiryDate ? formatDateTimeLocal(product.expiryDate) : ""
             });
             setImagePreview(product.imageUrl || "");
           } else {
@@ -81,17 +79,7 @@ const AddEditProductPage = () => {
     fetchInitialData();
   }, [productId]);
 
-  // Format datetime for datetime-local input
-  const formatDateTimeLocal = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
+
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -184,9 +172,6 @@ const AddEditProductPage = () => {
     submitData.append("description", formData.description.trim());
     submitData.append("stockMinimum", formData.stockMinimum || "0");
     
-    if (formData.expiryDate) {
-      submitData.append("expiryDate", formData.expiryDate);
-    }
     
     if (imageFile) {
       submitData.append("imageFile", imageFile);
@@ -235,11 +220,11 @@ const AddEditProductPage = () => {
       {message && <div className="message">{message}</div>}
 
       <div className="product-form-page">
-        <h1>{isEditing ? "Edit Product" : "Add Product"}</h1>
+        <h1>{isEditing ? "Modifier le produit" : "Ajouter un produit"}</h1>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Product Name *</label>
+            <label htmlFor="name">Nom du produit *</label>
             <input
               id="name"
               name="name"
@@ -268,7 +253,7 @@ const AddEditProductPage = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="quantity">Quantity *</label>
+              <label htmlFor="quantity">Quantité *</label>
               <input
                 id="quantity"
                 name="quantity"
@@ -298,7 +283,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="price">Price *</label>
+            <label htmlFor="price">Prix *</label>
             <input
               id="price"
               name="price"
@@ -314,7 +299,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="categoryId">Category *</label>
+            <label htmlFor="categoryId">Catégorie *</label>
             <select
               id="categoryId"
               name="categoryId"
@@ -323,7 +308,7 @@ const AddEditProductPage = () => {
               required
               disabled={isLoading}
             >
-              <option value="">Select a category</option>
+              <option value="">Sélectionnez une catégorie</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -345,20 +330,10 @@ const AddEditProductPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="expiryDate">Expiry Date</label>
-            <input
-              id="expiryDate"
-              name="expiryDate"
-              type="datetime-local"
-              value={formData.expiryDate}
-              onChange={handleInputChange}
-              disabled={isLoading}
-            />
-          </div>
+
 
           <div className="form-group">
-            <label htmlFor="imageFile">Product Image</label>
+            <label htmlFor="imageFile">Image du produit</label>
             <input
               id="imageFile"
               type="file"
@@ -366,7 +341,7 @@ const AddEditProductPage = () => {
               accept="image/*"
               disabled={isLoading}
             />
-            <small>Maximum file size: 5MB. Accepted formats: JPG, PNG, GIF, WEBP</small>
+            <small>Taille maximale du fichier : 5MB. Formats acceptés: JPG, PNG, GIF, WEBP</small>
             
             {imagePreview && (
               <div className="image-preview-container">
@@ -384,12 +359,19 @@ const AddEditProductPage = () => {
               type="submit" 
               className="btn-primary"
               disabled={isLoading}
+               style={{
+      flex: 1,
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
             >
               {isLoading 
                 ? "Processing..." 
                 : isEditing 
-                  ? "Update Product" 
-                  : "Add Product"
+                  ? "Mise à jour" 
+                  : "Ajouter"
               }
             </button>
             
@@ -398,8 +380,15 @@ const AddEditProductPage = () => {
               className="btn-secondary"
               onClick={handleCancel}
               disabled={isLoading}
+               style={{
+      flex: 1,
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
             >
-              Cancel
+              Annuler
             </button>
           </div>
         </form>

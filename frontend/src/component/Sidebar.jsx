@@ -107,19 +107,19 @@ const Sidebar = () => {
 
   // Configuration des éléments de menu avec icônes
   const menuItems = [
-    { name: "Dashboard", path: "/super-admin/dashboard", icon: <LucideIcons.Home size={20} />, auth: isSuperAdmin },
-    { name: "Dashboard", path: "/dashboard", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
+    { name: "Tableau de bord", path: "/super-admin/dashboard", icon: <LucideIcons.Home size={20} />, auth: isSuperAdmin },
+    { name: "Tableau de bord", path: "/dashboard", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
     { name: "Transactions", path: "/transactions", icon: <LucideIcons.FileText size={20} />, auth: isAdminOrManager },
-    { name: "Category", path: "/category", icon: <LucideIcons.Folder size={20} />, auth: isAdminOrManager },
-    { name: "Product", path: "/product", icon: <LucideIcons.Box size={20} />, auth: isAdminOrManager },
-    { name: "My Enterprise", path: "/my-entreprise", icon: <LucideIcons.Building size={20} />, auth: isAdmin },
-    { name: "User Management", path: "/UserManagementPage", icon: <LucideIcons.Users size={20} />, auth: isAdmin },
-    { name: "Profile", path: "/profile", icon: <LucideIcons.User size={20} />, auth: isAuth },
-        { name: "Pricing", path: "/pricing", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
-    { name: "Subscribtion", path: "/mySubscription", icon: <LucideIcons.Home size={20} />, auth: isAdminOrManager },
+    { name: "Catégorie", path: "/category", icon: <LucideIcons.Folder size={20} />, auth: isAdmin },
+    { name: "Produits", path: "/product", icon: <LucideIcons.Box size={20} />, auth: isAdminOrManager },
+    { name: "Mon entreprise", path: "/my-entreprise", icon: <LucideIcons.Building size={20} />, auth: isAdmin },
+    { name: "Gestion des utilisateurs", path: "/UserManagementPage", icon: <LucideIcons.Users size={20} />, auth: isAdmin },
+    { name: "Profil", path: "/profile", icon: <LucideIcons.User size={20} />, auth: isAuth },
+    { name: "Tarification", path: "/pricing", icon: <LucideIcons.DollarSign size={20} />, auth: isAdmin },
+    { name: "Abonnement", path: "/mySubscription", icon: <LucideIcons.CreditCard size={20} />, auth: isAdmin },
+    { name: "Partenaire ", path: "/partners", icon: <LucideIcons.Handshake  size={20} />, auth: isAdmin },
 
-
-    { name: "Logout", path: "/login", icon: <LucideIcons.LogOut size={20} />, auth: isAuth, action: logout },
+    { name: "Déconnexion", path: "/login", icon: <LucideIcons.LogOut size={20} />, auth: isAuth, action: logout },
   ];
 
   return (

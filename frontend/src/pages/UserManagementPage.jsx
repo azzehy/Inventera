@@ -154,7 +154,11 @@ const UserManagementPage = () => {
 
     setIsLoading(true);
     try {
-      const response = await ApiService.createManager(formData);
+      const response = await ApiService.createManager({
+        ...formData,
+        role: "MANAGER"
+      });
+
       showMessage(response.message || "Manager created successfully", "success");
       setShowCreateModal(false);
       resetForm();
@@ -480,7 +484,7 @@ const UserManagementPage = () => {
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Create New Manager</h2>
-              <button onClick={closeModal} className="text-gray-500 hover:text-gray-700 transition-colors">
+              <button onClick={closeModal} className="text-white-500 hover:text-gray-700 transition-colors">
                 <X size={24} />
               </button>
             </div>
@@ -524,34 +528,27 @@ const UserManagementPage = () => {
                 {formErrors.phoneNumber && <span className="text-red-600 text-sm mt-1 block">{formErrors.phoneNumber}</span>}
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Role *</label>
-                <div className="relative">
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-                  <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    className="w-full appearance-none px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 transition-colors bg-white pr-10"
-                  >
-                    <option value="MANAGER">Manager</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </div>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700">
+                This user will be created as <span className="font-semibold">Manager</span>.
               </div>
 
-              <div className="flex gap-3 pt-4">
+
+              <div className="flex gap-3 pt-4 items-center">
                 <button 
                   type="button" 
                   onClick={closeModal} 
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 font-semibold transition-colors"
+                  className="flex-1 !h-12 px-4 rounded-lg font-semibold
+                bg-red-500 text-white
+                hover:bg-red-600
+                transition-colors
+                flex items-center justify-center"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   disabled={isLoading} 
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+                  className="!w-auto flex-1 !h-12 px-4  bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center"
                 >
                   {isLoading ? "Creating..." : "Create Manager"}
                 </button>
@@ -567,7 +564,7 @@ const UserManagementPage = () => {
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Edit User</h2>
-              <button onClick={closeModal} className="text-gray-500 hover:text-gray-700 transition-colors">
+              <button onClick={closeModal} className="text-white-500 hover:text-gray-700 transition-colors">
                 <X size={24} />
               </button>
             </div>
@@ -627,18 +624,25 @@ const UserManagementPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-4 items-center">
                 <button 
                   type="button" 
                   onClick={closeModal} 
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 font-semibold transition-colors"
+                  className="flex-1 !h-12 px-4 rounded-lg font-semibold
+                bg-red-500 text-white
+                hover:bg-red-600
+                transition-colors
+                flex items-center justify-center"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   disabled={isLoading} 
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+                  className="flex-1 px-4 py-3 rounded-lg font-semibold
+                            bg-red-500 text-white
+                            hover:bg-red-600
+                            transition-colors"
                 >
                   {isLoading ? "Updating..." : "Update User"}
                 </button>

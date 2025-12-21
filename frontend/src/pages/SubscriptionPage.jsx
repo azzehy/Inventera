@@ -200,13 +200,13 @@ const SubscriptionPage = () => {
         {/* Main Subscription Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Plan Header */}
-          <div className={`bg-gradient-to-r ${getPlanGradient(subscription.plan?.planName)} p-8 text-white`}>
+          <div className={`bg-gradient-to-r ${getPlanGradient(subscription.plan?.name)} p-8 text-white`}>
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <PlanIcon size={32} className="text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold">{subscription.planName}</h2>
+                <h2 className="text-3xl font-bold">{subscription.plan?.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <CheckCircle size={18} />
                   <span className="text-white/90 font-medium">Actif</span>
